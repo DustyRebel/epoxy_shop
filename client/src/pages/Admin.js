@@ -10,11 +10,13 @@ import CreateType from "../components/modals/CreateType";
 import CreateColor from "../components/modals/CreateColor";
 import CreateItem from "../components/modals/CreateItem";
 import DeleteItem from "../components/modals/DeleteItem";
+import CreateGItem from "../components/modals/CreateGItem";
 
 const Admin = () => {
     const [colorVisible, setColorVisible] = useState(false)
     const [typeVisible, setTypeVisible] = useState(false)
     const [itemVisible, setItemVisible] = useState(false)
+    const [gitemVisible, setGItemVisible] = useState(false)
     const [itemDeleteVisible, setItemDeleteVisible] = useState(false)
 
   return (
@@ -23,10 +25,12 @@ const Admin = () => {
         <Button variant={"outline-dark"} className="mt-2 p-2" onClick={()=> setColorVisible(true)}>Добавить цвет</Button>
         <Button variant={"outline-dark"} className="mt-2 p-2" onClick={()=> setItemVisible(true)}>Добавить товар</Button>
         <Button variant={"outline-dark"} className="mt-2 p-2" onClick={()=> setItemDeleteVisible(true)}>Удалить товар</Button>
+        <Button variant={"outline-dark"} className="mt-2 p-2" onClick={()=> setGItemVisible(true)}>Добавить товар в галерею</Button>
         <CreateType show={typeVisible} onHide={()=> setTypeVisible(false)}/>
         <CreateColor show={colorVisible} onHide={()=> setColorVisible(false)}/>
         <CreateItem show={itemVisible} onHide={()=> setItemVisible(false)}/>
         <DeleteItem show={itemDeleteVisible} onHide={()=> setItemDeleteVisible(false)}/>
+        <CreateGItem show={gitemVisible} onHide={()=> setGItemVisible(false)}/>
     </Container>
   );
 };

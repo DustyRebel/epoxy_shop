@@ -1,10 +1,12 @@
 import { Component } from "react";
 import Admin from "./pages/Admin";
-import { ADMIN_ROUTE, CART_ROUTE, ITEM_ROUTE, LOGIN_ROUTE, REGISTRATION_ROUTE, SHOP_ROUTE } from "./utils/consts";
+import { ADMIN_ROUTE, CART_ROUTE, GALLERY_ITEM_ROUTE, GALLERY_ROUTE, ITEM_ROUTE, LOGIN_ROUTE, REGISTRATION_ROUTE, SHOP_ROUTE } from "./utils/consts";
 import Cart from "./pages/Cart";
 import Shop from "./pages/Shop";
 import Auth from "./pages/Auth";
 import ItemPage from "./pages/ItemPage";
+import Gallery from "./pages/Gallery";
+import GItemPage from "./pages/GItemPage";
 
 export const authRoutes = [
     
@@ -36,5 +38,13 @@ export const publicRoutes = [
     {
         path: ITEM_ROUTE + '/:id',
         Component: ItemPage
+    },
+    {
+        path: GALLERY_ROUTE,
+        Component: Gallery
+    },
+    {
+        path: GALLERY_ITEM_ROUTE + '/:id',
+        Component: GItemPage
     },
 ]

@@ -1,15 +1,15 @@
 import {makeAutoObservable} from "mobx";
 
-export default class ItemStore{
+export default class GItemStore{
     constructor(){
         this._types = []
         this._colors = []
-        this._items = []
+        this._gallery_items = []
         this._selectedType = {}
         this._selectedColor = {}
         this._page = 1
         this._totalCount = 0
-        this._limit = 2
+        this._limit = 3
         makeAutoObservable(this)
     }
 
@@ -21,8 +21,8 @@ export default class ItemStore{
         this._colors = colors
     }
 
-    setItems(items){
-        this._items = items
+    setItems(gallery_items){
+        this._gallery_items = gallery_items
     }
 
     setSelectedType(type) {
@@ -51,8 +51,8 @@ export default class ItemStore{
         return this._colors
     }
 
-    get items () {
-        return this._items
+    get gallery_items () {
+        return this._gallery_items
     }
 
     get selectedType () {
