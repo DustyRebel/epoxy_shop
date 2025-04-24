@@ -1,10 +1,10 @@
 const Router = require('express')
 const router = new Router()
-const itemRouter = require('./itemRouter')
 const userRouter = require('./userRouter')
 const colorRouter = require('./colorRouter')
 const typeRouter = require('./typeRouter')
 const gitemRouter = require('./gitemRouter')
+const itemRouter = require('./itemRouter')
 
 
 router.use('/user', userRouter)

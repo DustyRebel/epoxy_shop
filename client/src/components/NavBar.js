@@ -17,16 +17,10 @@ const NavBar = observer(() => {
     const logOut = () => {
         user.setUser({})
         user.setIsAuth(false)
+        localStorage.removeItem('token')
     }
 
-    const handleShopLinkClick = () => {
-        item.setSelectedType(null);      // сброс типа
-        item.setSelectedColor(null);     // сброс цвета
-        item.setPage(1);                 // сброс страницы
-        navigate(SHOP_ROUTE);           // переход на страницу магазина
-    }
 
-    
 
   return (
     <Navbar bg="dark" data-bs-theme="dark"> 
@@ -46,7 +40,8 @@ const NavBar = observer(() => {
             </Nav>
             :
             <Nav className="ml-auto" >
-                <Button variant={"outline-light"} onClick={() => navigate(LOGIN_ROUTE)}>Авторизация</Button>
+                <Button variant={"outline-light"} onClick={()=> navigate(GALLERY_ROUTE)}>Галерея</Button>
+                <Button variant={"outline-light"} onClick={() => navigate(LOGIN_ROUTE)}className="ms-2">Авторизация</Button>
             </Nav>
         }
                 </Container>
