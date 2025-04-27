@@ -12,7 +12,11 @@ router.get('/', checkAuth, cartItemController.getAll);
 // Получить конкретную запись cartItem по id
 router.get('/:id', checkAuth, cartItemController.getOne);
 
+router.put('/:id', checkAuth, cartItemController.update);
+
 // Удалить товар из корзины (по id записи cartItem)
 router.delete('/:id', checkAuth, cartItemController.delete);
+
+router.delete('/cart/:cartId', checkAuth, cartItemController.deleteByCartId);
 
 module.exports = router;

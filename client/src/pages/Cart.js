@@ -3,10 +3,12 @@ import { Button, Col, Container, Form, Image, Row } from "react-bootstrap";
 import {
     fetchCartItems,
     deleteCartItem,
-    updateCartItem
+    updateCartItem,
+    deleteCartItemsByCart
 } from "../http/cartItemAPI";
 import { fetchShippings } from "../http/shippingAPI";
 import { createCheckout } from "../http/checkoutAPI";
+import { jwtDecode } from "jwt-decode";
 
 
 const Cart = () => {
@@ -39,17 +41,29 @@ const Cart = () => {
     const totalPrice = cartItems.reduce((sum, item) => sum + item.item.price * item.quantity, 0);
 
     const handleOrder = async () => {
-        const checkoutData = {
-            ...formData,
-            price: totalPrice,
-            cartId: cartItems[0]?.cartId, // предполагаем, что все товары из одной корзины
-            userId: cartItems[0]?.cart.userId,
-            shippingId: selectedShipping
-        };
-
-        await createCheckout(checkoutData);
-        alert("Заказ оформлен!");
-        setCartItems([]);
+        try {
+            const token = localStorage.getItem('token');
+            const decoded = jwtDecode(token);
+    
+            const checkoutData = {
+                ...formData,
+                price: totalPrice,
+                cartId: cartItems[0]?.cartId,
+                userId: decoded.id,
+                shippingId: selectedShipping
+            };
+    
+            await createCheckout(checkoutData);
+    
+            // После успешного оформления - удалить все товары из корзины
+            await deleteCartItemsByCart(cartItems[0]?.cartId);
+    
+            alert("Заказ оформлен и корзина очищена!");
+            setCartItems([]);
+        } catch (e) {
+            alert('Ошибка при оформлении заказа');
+            console.error(e);
+        }
     };
 
     return (

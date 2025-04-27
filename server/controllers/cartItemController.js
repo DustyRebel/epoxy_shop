@@ -1,4 +1,4 @@
-const { Cart, CartItem, Item } = require('../models/models');
+const { Cart, CartItem, Item, ShopImg } = require('../models/models');
 const ApiError = require('../error/ApiError');
 
 class CartItemController {
@@ -40,7 +40,10 @@ class CartItemController {
 
             const items = await CartItem.findAll({
                 where: { cartId: cart.id },
-                include: [{ model: Item }]
+                include: [{
+                    model: Item,
+                    include: [{ model: ShopImg }] // <<< добавляем сюда!
+                }]
             });
 
             return res.json(items);
@@ -54,7 +57,10 @@ class CartItemController {
             const { id } = req.params;
             const item = await CartItem.findOne({
                 where: { id },
-                include: [{ model: Item }]
+                include: [{
+                    model: Item,
+                    include: [{ model: ShopImg }] // <<< и сюда тоже!
+                }]
             });
             if (!item) return next(ApiError.notFound('Товар в корзине не найден'));
             return res.json(item);
@@ -69,6 +75,33 @@ class CartItemController {
             const deleted = await CartItem.destroy({ where: { id } });
             if (!deleted) return next(ApiError.notFound('Товар в корзине не найден'));
             return res.json({ message: 'Товар удален из корзины' });
+        } catch (e) {
+            next(ApiError.badRequest(e.message));
+        }
+    }
+
+    async deleteByCartId(req, res, next) {
+        try {
+            const { cartId } = req.params;
+            const deleted = await CartItem.destroy({ where: { cartId } });
+            return res.json({ message: `${deleted} товаров удалено из корзины` });
+        } catch (e) {
+            next(ApiError.badRequest(e.message));
+        }
+    }
+
+    async update(req, res, next) {
+        try {
+            const { id } = req.params;
+            const { quantity } = req.body;
+    
+            const cartItem = await CartItem.findByPk(id);
+            if (!cartItem) return next(ApiError.notFound('Товар в корзине не найден'));
+    
+            cartItem.quantity = quantity;
+            await cartItem.save();
+    
+            return res.json(cartItem);
         } catch (e) {
             next(ApiError.badRequest(e.message));
         }

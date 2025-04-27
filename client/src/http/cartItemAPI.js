@@ -23,3 +23,11 @@ export const deleteCartItem = async (cartItemId) => {
     const { data } = await $authHost.delete(`api/cart_item/${cartItemId}`);
     return data;
 };
+
+
+export const deleteCartItemsByCart = async (cartId) => {
+    const { data } = await $authHost.delete(`api/cart_item/cart/${cartId}`);
+    return data;
+};
+
+

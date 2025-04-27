@@ -19,7 +19,7 @@ const ItemItem = ({item}) => {
             <Card style={{ width: 150, cursor: 'pointer' }} border={"light"}>
                 <Image width={150} height={150} src={firstImage} />
                 <div className="text-black-50 mt-1 d-flex justify-content-between align-items-center">
-                    <div>{item.color || '...'}</div>
+                    <div>{item.price || '???'} руб.</div>
                     <div className="d-flex align-items-center">
                         <div>{item.rating || 0}</div>
                         <Image width={18} height={18} src={star} />

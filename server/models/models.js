@@ -123,6 +123,11 @@ const BAttributeVal = sequelize.define('b_attribute_val', {
     availability: {type: DataTypes.BOOLEAN, allowNull: false},
 })
 
+const CheckoutItem = sequelize.define('checkout_item', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    quantity: { type: DataTypes.INTEGER, allowNull: false },
+});
+
 User.hasOne(Cart)
 Cart.belongsTo(User)
 
@@ -205,6 +210,13 @@ BVariant.hasMany(BAttribute)
 BAttribute.belongsTo(BVariant)
 
 
+Checkout.hasMany(CheckoutItem);
+CheckoutItem.belongsTo(Checkout);
+
+Item.hasMany(CheckoutItem);
+CheckoutItem.belongsTo(Item);
+
+
 module.exports = {
     User,
     Cart,
@@ -226,4 +238,5 @@ module.exports = {
     BVariant,
     BAttribute,
     BAttributeVal,
+    CheckoutItem,
 };
