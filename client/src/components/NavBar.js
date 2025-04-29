@@ -5,7 +5,7 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import {NavLink} from "react-router-dom";
 import {Button} from "react-bootstrap";
-import { ADMIN_ROUTE, CART_ROUTE, GALLERY_ROUTE, LOGIN_ROUTE, SHOP_ROUTE } from "../utils/consts";
+import { ADMIN_ROUTE, CART_ROUTE, GALLERY_ROUTE, LOGIN_ROUTE, SHOP_ROUTE, USER_ROUTE } from "../utils/consts";
 import {observer} from "mobx-react-lite"
 import { useNavigate } from "react-router-dom";
 
@@ -37,6 +37,7 @@ const NavBar = observer(() => {
                 <Button variant={"outline-light"} onClick={()=> navigate(GALLERY_ROUTE)}>Галерея</Button>
                 <Button variant={"outline-light"} onClick={()=> navigate(ADMIN_ROUTE)}className="ms-2">Админ</Button>
                 <Button variant={"outline-light"} onClick={()=> navigate(CART_ROUTE)}className="ms-2">Корзина</Button>
+                <Button variant={"outline-light"} onClick={()=> navigate(USER_ROUTE)}className="ms-2">Мои заказы</Button>
                 <Button variant={"outline-light"} onClick={()=> logOut()} className="ms-2">Выйти</Button>
             </Nav>
             :
