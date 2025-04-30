@@ -4,7 +4,6 @@ import Row from "react-bootstrap/Row"
 import Col from "react-bootstrap/Col"
 import Container from 'react-bootstrap/Container';
 import Image from "react-bootstrap/Image";
-import bigStar from '../assets/bigStar.png'
 import { Button, Form } from "react-bootstrap";
 import { useParams } from 'react-router-dom'
 import { fetchOneItem } from "../http/itemAPI";
@@ -12,6 +11,8 @@ import { addItemToCart } from "../http/cartItemAPI";
 import { fetchRatings } from "../http/ratingAPI";
 import { useMemo } from "react";
 import { FaStar, FaRegStar, FaStarHalfAlt } from 'react-icons/fa';
+import { jwtDecode } from "jwt-decode";
+import { deleteRating } from "../http/ratingAPI"; // функция удаления отзыва
 
 const renderStars = (rating) => {
     const stars = [];
@@ -33,6 +34,18 @@ const ItemPage = () => {
     const [quantity, setQuantity] = useState(1);
     const { id } = useParams();
     const [ratings, setRatings] = useState([]);
+
+    const token = localStorage.getItem('token');
+    let role = '';
+    try {
+        if (token) {
+            const decoded = jwtDecode(token);
+            role = decoded.role;
+        }
+    } catch (e) {
+        console.error("Ошибка при декодировании токена", e);
+    }
+
 
     useEffect(() => {
         fetchOneItem(id).then(data => {
@@ -62,6 +75,18 @@ const ItemPage = () => {
         const total = ratings.reduce((sum, r) => sum + r.rate, 0);
         return (total / ratings.length).toFixed(1); // например: 4.3
     }, [ratings]);
+
+    const handleDeleteRating = async (id) => {
+        if (window.confirm("Удалить этот отзыв?")) {
+            try {
+                await deleteRating(id);
+                setRatings(ratings.filter(r => r.id !== id));
+            } catch (e) {
+                alert("Ошибка при удалении отзыва");
+                console.error(e);
+            }
+        }
+    };
 
     return (
         <Container className="mt-3">
@@ -163,19 +188,26 @@ const ItemPage = () => {
                         <Card key={rating.id} className="mb-3 p-3">
                             <div className="d-flex justify-content-between">
                                 <div><strong>Оценка:</strong> {rating.rate} / 5</div>
-                                <div style={{ color: '#555' }}>{new Date(rating.createdAt)
-                                .toLocaleString('ru-RU', {
-                                    day: '2-digit',
-                                    month: '2-digit',
-                                    year: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                })
-                                .replace(',', '')}</div>
+                                <div style={{ color: '#555' }}>
+                                    {new Date(rating.createdAt).toLocaleString('ru-RU', {
+                                        day: '2-digit',
+                                        month: '2-digit',
+                                        year: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                    }).replace(',', '')}
+                                </div>
                             </div>
                             <div className="mt-2">{rating.review || "Без текста"}</div>
+                            {role === 'ADMIN' && (
+                                <div className="text-end mt-2">
+                                    <Button variant="outline-danger" size="sm" onClick={() => handleDeleteRating(rating.id)}>
+                                        Удалить
+                                    </Button>
+                                </div>
+                            )}
                         </Card>
-                    ))
+                    ))                    
                 ) : (
                     <p className="text-muted">Отзывов пока нет</p>
                 )}

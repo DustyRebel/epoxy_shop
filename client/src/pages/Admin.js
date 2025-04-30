@@ -1,10 +1,5 @@
 import React, { useContext, useState }from "react";
-import Card from "react-bootstrap/Card";
-import Row from "react-bootstrap/Row"
-import Col from "react-bootstrap/Col"
 import Container from 'react-bootstrap/Container';
-import  Image  from "react-bootstrap/Image";
-import bigStar from '../assets/bigStar.png'
 import { Button } from "react-bootstrap";
 import CreateType from "../components/modals/CreateType";
 import CreateColor from "../components/modals/CreateColor";

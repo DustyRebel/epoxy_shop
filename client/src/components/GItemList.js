@@ -1,9 +1,7 @@
 import { observer } from "mobx-react-lite";
 import React, { useContext }from "react";
-import Card from "react-bootstrap/Card";
 import { Context } from "../index";
 import Row from "react-bootstrap/Row"
-import Col from "react-bootstrap/Col"
 import GItemItem from "./GItemItem";
 
 const GItemList = observer(() => {

@@ -4,8 +4,6 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import  Form  from "react-bootstrap/Form";
 import {Dropdown} from "react-bootstrap";
-import Row from "react-bootstrap/Row"
-import Col from "react-bootstrap/Col"
 import { createItems, fetchColors, fetchTypes } from "../../http/gitemAPI";
 import { observer } from "mobx-react-lite";
 
@@ -48,7 +46,7 @@ const CreateGItem = observer(({show, onHide}) => { // Observer нужен, чт�
   >
     <Modal.Header closeButton>
       <Modal.Title id="contained-modal-title-vcenter">
-        Добавить устройство
+        Добавить предмет в галерею
       </Modal.Title>
     </Modal.Header>
     <Modal.Body>

@@ -9,6 +9,8 @@ import {
 import { fetchShippings } from "../http/shippingAPI";
 import { createCheckout } from "../http/checkoutAPI";
 import { jwtDecode } from "jwt-decode";
+import Loading from "../components/modals/Loading"; 
+
 
 
 const Cart = () => {
@@ -16,6 +18,12 @@ const Cart = () => {
     const [shippings, setShippings] = useState([]);
     const [selectedShipping, setSelectedShipping] = useState(null);
     const [formData, setFormData] = useState({ name: '', phone: '', tg: '', address: '' });
+    const [loading, setLoading] = useState(false);
+    const [errors, setErrors] = useState({
+        phone: '',
+        tg: ''
+    });
+    
 
     useEffect(() => {
         loadCart();
@@ -41,7 +49,26 @@ const Cart = () => {
     const totalPrice = cartItems.reduce((sum, item) => sum + item.item.price * item.quantity, 0);
 
     const handleOrder = async () => {
+        if (cartItems.length === 0) {
+            alert('Корзина пуста');
+            return;
+        }
+    
+        const phoneRegex = /^\+7\d{10}$/;
+        const tgRegex = /^@\w{5,}$/;
+    
+        const newErrors = {
+            phone: phoneRegex.test(formData.phone) ? '' : 'Введите правильный номер',
+            tg: tgRegex.test(formData.tg) ? '' : 'Введите адрес Telegram в формате @nickname'
+        };
+    
+        setErrors(newErrors);
+    
+        const hasErrors = Object.values(newErrors).some(error => error);
+        if (hasErrors) return;
+    
         try {
+            setLoading(true);
             const token = localStorage.getItem('token');
             const decoded = jwtDecode(token);
     
@@ -54,8 +81,6 @@ const Cart = () => {
             };
     
             await createCheckout(checkoutData);
-    
-            // После успешного оформления - удалить все товары из корзины
             await deleteCartItemsByCart(cartItems[0]?.cartId);
     
             alert("Заказ оформлен и корзина очищена!");
@@ -63,6 +88,8 @@ const Cart = () => {
         } catch (e) {
             alert('Ошибка при оформлении заказа');
             console.error(e);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -119,7 +146,11 @@ const Cart = () => {
                                 type="text"
                                 value={formData.phone}
                                 onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                                isInvalid={!!errors.phone}
                             />
+                            <Form.Control.Feedback type="invalid">
+                                {errors.phone}
+                            </Form.Control.Feedback>
                         </Form.Group>
                         <Form.Group className="mb-2">
                             <Form.Label>Telegram</Form.Label>
@@ -128,8 +159,13 @@ const Cart = () => {
                                 value={formData.tg}
                                 placeholder="@nickname"
                                 onChange={e => setFormData({ ...formData, tg: e.target.value })}
+                                isInvalid={!!errors.tg}
                             />
+                            <Form.Control.Feedback type="invalid">
+                                {errors.tg}
+                            </Form.Control.Feedback>
                         </Form.Group>
+
                         <Form.Group className="mb-2">
                             <Form.Label>Адрес</Form.Label>
                             <Form.Control
@@ -154,7 +190,8 @@ const Cart = () => {
                     </Form>
                 </Col>
             </Row>
-        </Container>
+            <Loading show={loading} />
+        </Container> 
     );
 };
 
