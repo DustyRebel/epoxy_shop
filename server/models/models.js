@@ -121,12 +121,27 @@ const BAttributeVal = sequelize.define('b_attribute_val', {
     name: {type: DataTypes.STRING, unique: true, allowNull: false},
     price: {type: DataTypes.INTEGER, allowNull: false},
     availability: {type: DataTypes.BOOLEAN, allowNull: false},
+    hexColor: { type: DataTypes.STRING, allowNull: true },
 })
 
 const CheckoutItem = sequelize.define('checkout_item', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     quantity: { type: DataTypes.INTEGER, allowNull: false },
 });
+
+const BVariantImg = sequelize.define('b_variant_img', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    link: { type: DataTypes.STRING, allowNull: false },
+    view: { type: DataTypes.STRING, allowNull: false }, // front, back, side
+});
+
+const BAttributeValImg = sequelize.define('b_attribute_val_img', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    link: { type: DataTypes.STRING, allowNull: false },
+    view: { type: DataTypes.STRING, allowNull: false }, // front, back, side
+});
+
+const BAttributeVariant = sequelize.define('b_attribute_variant', {}, { timestamps: false });
 
 User.hasOne(Cart)
 Cart.belongsTo(User)
@@ -191,6 +206,9 @@ BCheckout.belongsTo(BCart)
 BCart.hasMany(BCartItem)
 BCartItem.belongsTo(BCart)
 
+BAttribute.belongsToMany(BVariant, { through: BAttributeVariant });
+BVariant.belongsToMany(BAttribute, { through: BAttributeVariant });
+
 BVariant.hasMany(BCart)
 BCart.belongsTo(BVariant)
 
@@ -206,8 +224,8 @@ BCartItem.belongsTo(BAttributeVal)
 BAttribute.hasMany(BAttributeVal)
 BAttributeVal.belongsTo(BAttribute)
 
-BVariant.hasMany(BAttribute)
-BAttribute.belongsTo(BVariant)
+//BVariant.hasMany(BAttribute)
+//BAttribute.belongsTo(BVariant)
 
 
 Checkout.hasMany(CheckoutItem);
@@ -215,6 +233,13 @@ CheckoutItem.belongsTo(Checkout);
 
 Item.hasMany(CheckoutItem);
 CheckoutItem.belongsTo(Item);
+
+BVariant.hasMany(BVariantImg);
+BVariantImg.belongsTo(BVariant);
+
+BAttributeVal.hasMany(BAttributeValImg);
+BAttributeValImg.belongsTo(BAttributeVal);
+
 
 
 module.exports = {
@@ -239,4 +264,7 @@ module.exports = {
     BAttribute,
     BAttributeVal,
     CheckoutItem,
+    BVariantImg,
+    BAttributeValImg,
+    BAttributeVariant,
 };

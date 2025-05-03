@@ -5,7 +5,7 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import {NavLink} from "react-router-dom";
 import {Button} from "react-bootstrap";
-import { ADMIN_ROUTE, CART_ROUTE, GALLERY_ROUTE, LOGIN_ROUTE, SHOP_ROUTE, USER_ROUTE } from "../utils/consts";
+import { BUILDER_ROUTE, ADMIN_ROUTE, CART_ROUTE, GALLERY_ROUTE, LOGIN_ROUTE, SHOP_ROUTE, USER_ROUTE } from "../utils/consts";
 import {observer} from "mobx-react-lite"
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
@@ -45,7 +45,8 @@ const NavBar = observer(() => {
 
         {user.isAuth ?
             <Nav className="ml-auto" >
-                <Button variant={"outline-light"} onClick={()=> navigate(GALLERY_ROUTE)}>Галерея</Button>
+                <Button variant={"outline-info"} onClick={() => navigate(BUILDER_ROUTE)} className="ms-2">Конструктор</Button>
+                <Button variant={"outline-light"} onClick={()=> navigate(GALLERY_ROUTE)} className="ms-2">Галерея</Button>
                 {role === 'ADMIN' && (
                     <Button variant={"outline-light"} onClick={() => navigate(ADMIN_ROUTE)} className="ms-2">Админ</Button>
                 )}

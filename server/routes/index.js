@@ -9,6 +9,12 @@ const cartItemRouter = require('./cartItemRouter')
 const shippingRouter = require('./shippingRouter');
 const checkoutRouter = require('./checkoutRouter');
 const ratingRouter = require('./ratingRouter');
+const bVariantRouter = require('./bVariantRouter');
+const bTypeRouter = require('./bTypeRouter');
+const bAttributeRouter = require('./bAttributeRouter');
+const bAttributeValRouter = require('./bAttributeValRouter');
+const bAttributeValImgRouter = require('./bAttributeValImgRouter');
+
 
 
 router.use('/user', userRouter)
@@ -20,6 +26,10 @@ router.use('/cart_item', cartItemRouter)
 router.use('/shipping', shippingRouter)
 router.use('/checkout', checkoutRouter)
 router.use('/rating', ratingRouter)
-
+router.use('/bvariant', bVariantRouter);
+router.use('/btype', bTypeRouter);
+router.use('/battribute', bAttributeRouter);
+router.use('/battributeval', bAttributeValRouter);
+router.use('/battributevalimg', bAttributeValImgRouter);
 
 module.exports = router

@@ -7,3 +7,4 @@ export const ITEM_ROUTE = '/item'
 export const GALLERY_ROUTE = '/gallery'
 export const GALLERY_ITEM_ROUTE = '/gitem'
 export const USER_ROUTE = '/user'
+export const BUILDER_ROUTE = '/builder';
