@@ -106,7 +106,7 @@ const BType = sequelize.define('b_type', {
 const BVariant = sequelize.define('b_variant', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     name: {type: DataTypes.STRING, allowNull: false},
-    img: {type: DataTypes.STRING, allowNull: false},
+    img: {type: DataTypes.STRING, allowNull: true},
     price: {type: DataTypes.INTEGER, allowNull: false},
     availability: {type: DataTypes.BOOLEAN, allowNull: false},
 })

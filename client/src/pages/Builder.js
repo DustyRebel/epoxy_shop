@@ -7,8 +7,14 @@ import {
   fetchBAttributesByVariant,
   fetchBAttributeVals
 } from "../http/bConstructorAPI";
-import { Dropdown, Row, Col, Button } from "react-bootstrap";
+import { Dropdown, Row, Col, Button, Form, Container } from "react-bootstrap";
 import CanvasPreview from "../components/CanvasPreview";
+
+const viewLabels = {
+  front: "Вид спереди",
+  side: "Вид сбоку",
+  back: "Вид сзади"
+};
 
 const Builder = observer(() => {
   const { constructor: constructorStore } = useContext(Context);
@@ -16,6 +22,7 @@ const Builder = observer(() => {
   const [variants, setVariants] = useState([]);
   const [attributes, setAttributes] = useState([]);
   const [attributeValues, setAttributeValues] = useState({});
+  const [darkBackground, setDarkBackground] = useState(false);
 
   useEffect(() => {
     fetchBTypes().then(setTypes);
@@ -23,12 +30,24 @@ const Builder = observer(() => {
 
   useEffect(() => {
     if (constructorStore.selectedType) {
+      // сбрасываем старые данные
+      setAttributes([]);
+      setAttributeValues({});
+      setVariants([]);
+  
       fetchBVariants().then(data => {
-        const filtered = data.filter(v => v.bTypeId === constructorStore.selectedType.id);
+        const filtered = data
+          .filter(v => v.bTypeId === constructorStore.selectedType.id)
+          .map(v => ({
+            ...v,
+            disabled: !v.availability
+          }));
         setVariants(filtered);
       });
     }
   }, [constructorStore.selectedType]);
+  
+  
 
   useEffect(() => {
     if (constructorStore.selectedVariant) {
@@ -66,10 +85,18 @@ const Builder = observer(() => {
     const img = selected?.value?.b_attribute_val_imgs?.find(i => i.view === view);
     return img ? process.env.REACT_APP_API_URL + img.link : null;
   };
+
+  const getSelectedBaseColor = () => {
+    const baseAttr = attributes.find(attr => attr.name.toLowerCase().includes("подложка"));
+    const selected = constructorStore.selectedAttributes.find(a => a.attribute.id === baseAttr?.id);
+    return selected?.value?.hexColor || null;
+  };
+  
   
   
 
   return (
+    <Container fluid className="px-4">
     <Row className="p-3">
       <Col md={3}>
         <h4>Цена: {constructorStore.totalPrice} ₽</h4>
@@ -88,12 +115,20 @@ const Builder = observer(() => {
         <Dropdown className="mt-3">
           <Dropdown.Toggle>{constructorStore.selectedVariant?.name || "Выберите форму"}</Dropdown.Toggle>
           <Dropdown.Menu>
-            {variants.map(variant => (
-              <Dropdown.Item key={variant.id} onClick={() => constructorStore.setVariant(variant)}>
-                {variant.name} ({variant.b_type?.name || "Тип"})
-              </Dropdown.Item>
-            ))}
-          </Dropdown.Menu>
+          {variants.map(variant => (
+            <Dropdown.Item
+              key={variant.id}
+              disabled={variant.disabled}
+              onClick={() => {
+                if (!variant.disabled) constructorStore.setVariant(variant);
+              }}
+            >
+              {variant.name} ({variant.b_type?.name || "Тип"})
+              {!variant.availability && " — недоступно"}
+            </Dropdown.Item>
+          ))}
+        </Dropdown.Menu>
+
         </Dropdown>
 
         {attributes.map(attr => (
@@ -135,21 +170,44 @@ const Builder = observer(() => {
       </Col>
 
       <Col md={9}>
-        <div className="visual-preview d-flex justify-content-around align-items-center bg-light border p-4" style={{ height: 700 }}>
-          {["front", "side", "back"].map((view) => (
-            <div key={view} className="d-flex flex-column align-items-center">
-              <h6 className="text-capitalize mb-2">{view}</h6>
-              <CanvasPreview
-                formImg={constructorStore.selectedVariant && process.env.REACT_APP_API_URL + getImgByView(view)}
-                glitterImg={getSelectedGlitterImg(view)}
-                hexColor={getSelectedHexColor()}
-                decorImg={getSelectedDecorImg(view)}
-              />
-            </div>
-          ))}
+      <div className="d-flex align-items-center mb-2">
+  <Form.Check 
+    type="switch"
+    id="background-toggle"
+    label={darkBackground ? "Тёмный фон" : "Светлый фон"}
+    checked={darkBackground}
+    onChange={() => setDarkBackground(prev => !prev)}
+  />
+</div>
+
+<div
+  className={`visual-preview d-flex flex-wrap justify-content-around mt-2 align-items-center border p-4 ${darkBackground ? 'bg-dark' : 'bg-light'}`}
+  style={{ height: 750 }}
+>
+        {constructorStore.selectedVariant ? (
+  ["front", "side", "back"].map((view) => (
+    <div key={view} className="d-flex flex-column align-items-center">
+<h6 className={`mb-2 ${darkBackground ? "text-light" : ""}`}>{viewLabels[view]}</h6>
+      <CanvasPreview
+        formImg={process.env.REACT_APP_API_URL + getImgByView(view)}
+        glitterImg={getSelectedGlitterImg(view)}
+        hexColor={getSelectedHexColor()}
+        decorImg={getSelectedDecorImg(view)}
+        baseColor={getSelectedBaseColor()} 
+        view={view}
+      />
+    </div>
+  ))
+) : (
+  <div className={darkBackground ? "text-light" : "text-muted"}>
+  Примерный вид вашего изделия будет здесь
+</div>
+)}
+
         </div>
       </Col>
     </Row>
+    </Container>
   );
 });
 

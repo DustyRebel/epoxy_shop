@@ -50,4 +50,22 @@ export const fetchBAttributeVals = async (attributeId) => {
     const { data } = await $host.get(`api/battributeval/by-attribute/${attributeId}`);
     return data;
 };
+
+export const updateBVariantAvailability = async (id, availability) => {
+    return await $authHost.patch(`api/bvariant/${id}/availability`, { availability });
+};
+  
+export const updateBAttributeValAvailability = async (id, availability) => {
+    return await $authHost.patch(`api/battributeval/${id}/availability`, { availability });
+};
+
+export const fetchAllBVariants = async () => {
+    const { data } = await $authHost.get("api/bvariant/all");
+    return data;
+};
+  
+export const fetchAllBAttributeVals = async () => {
+    const { data } = await $authHost.get("api/battributeval/all"); 
+    return data;
+};
   

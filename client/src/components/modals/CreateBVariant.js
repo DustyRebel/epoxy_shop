@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import { Modal, Button, Form, Dropdown } from "react-bootstrap";
 import { observer } from "mobx-react-lite";
-import { createBVariant, fetchBTypes } from "../../http/bConstructorAPI";
+import { createBVariant, fetchBTypes, fetchBAttributes } from "../../http/bConstructorAPI";
 import { Context } from "../../index";
 
 const CreateBVariant = observer(({ show, onHide }) => {
@@ -18,32 +18,47 @@ const selectImgFront = e => setImgFront(e.target.files[0])
 const selectImgBack = e => setImgBack(e.target.files[0])
 const selectImgSide = e => setImgSide(e.target.files[0])
 
+const [attributes, setAttributes] = useState([]);
+const [selectedAttributes, setSelectedAttributes] = useState([]);
+
+useEffect(() => {
+  fetchBTypes().then(data => item.setTypes(data));
+  fetchBAttributes().then(data => setAttributes(data));
+}, []);
+
   
 
-  useEffect(() => {
-    fetchBTypes().then(data => item.setTypes(data));
-  }, []);
-
-  const selectFile = (e) => {
+const selectFile = (e) => {
     setFile(e.target.files[0]);
-  };
+};
 
-  const addVariant = () => {
+const addVariant = () => {
     const formData = new FormData();
     formData.append("name", name);
     formData.append("price", price);
     formData.append("availability", available);
     formData.append("bTypeId", item.selectedType.id);
+    formData.append("attributeIds", JSON.stringify(selectedAttributes));
+  
+  
     if (file) formData.append("img", file);
-
-    createBVariant(formData).then(() => {
-      setName(""); setPrice(0); setAvailable(true); setFile(null);
-      onHide();
-    });
     if (imgFront) formData.append("imgFront", imgFront);
     if (imgBack) formData.append("imgBack", imgBack);
     if (imgSide) formData.append("imgSide", imgSide);
+  
+    createBVariant(formData).then(() => {
+      setName("");
+      setPrice(0);
+      setAvailable(true);
+      setFile(null);
+      setImgFront(null);
+      setImgBack(null);
+      setImgSide(null);
+      setSelectedAttributes([]);
+      onHide();
+    });
   };
+  
 
   return (
     <Modal show={show} onHide={onHide} size="lg" centered>
@@ -92,6 +107,25 @@ const selectImgSide = e => setImgSide(e.target.files[0])
 
             <Form.Label className="mt-3">Изображение сбоку</Form.Label>
             <Form.Control type="file" onChange={selectImgSide} />
+
+            <Form.Label className="mt-3">Привязать атрибуты</Form.Label>
+            <div className="d-flex flex-wrap gap-3">
+              {attributes.map(attr => (
+                <Form.Check
+                  key={attr.id}
+                  type="checkbox"
+                  label={attr.name}
+                  checked={selectedAttributes.includes(attr.id)}
+                  onChange={() => {
+                    if (selectedAttributes.includes(attr.id)) {
+                      setSelectedAttributes(prev => prev.filter(id => id !== attr.id));
+                    } else {
+                      setSelectedAttributes(prev => [...prev, attr.id]);
+                    }
+                  }}
+                />
+              ))}
+            </div>
         </Form>
       </Modal.Body>
       <Modal.Footer>

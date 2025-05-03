@@ -69,5 +69,7 @@ export default class ConstructorStore {
     const selected = this.selectedAttributes.find(a => a.attribute.id === attributeId);
     return selected ? selected.value : null;
   }
+  
+
 }
 
