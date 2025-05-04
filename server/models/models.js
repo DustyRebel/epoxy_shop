@@ -114,6 +114,7 @@ const BVariant = sequelize.define('b_variant', {
 const BAttribute = sequelize.define('b_attribute', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     name: {type: DataTypes.STRING, unique: true, allowNull: false},
+    renderRole: { type: DataTypes.STRING, allowNull: true },
 })
 
 const BAttributeVal = sequelize.define('b_attribute_val', {
@@ -122,6 +123,7 @@ const BAttributeVal = sequelize.define('b_attribute_val', {
     price: {type: DataTypes.INTEGER, allowNull: false},
     availability: {type: DataTypes.BOOLEAN, allowNull: false},
     hexColor: { type: DataTypes.STRING, allowNull: true },
+    img: {type: DataTypes.STRING, allowNull: true},
 })
 
 const CheckoutItem = sequelize.define('checkout_item', {

@@ -23,6 +23,8 @@ const Builder = observer(() => {
   const [attributes, setAttributes] = useState([]);
   const [attributeValues, setAttributeValues] = useState({});
   const [darkBackground, setDarkBackground] = useState(false);
+  const [smallSize, setSmallSize] = useState(false); 
+
 
   useEffect(() => {
     fetchBTypes().then(setTypes);
@@ -101,8 +103,10 @@ const Builder = observer(() => {
       <Col md={3}>
         <h4>Цена: {constructorStore.totalPrice} ₽</h4>
 
-        <Dropdown className="mt-3">
-          <Dropdown.Toggle>{constructorStore.selectedType?.name || "Выберите тип"}</Dropdown.Toggle>
+        <Dropdown className="mt-3 ">
+          <Dropdown.Toggle  style={{ backgroundColor: "#f27cab", borderColor: "#f27cab", color: "#fff"}}>
+            {constructorStore.selectedType?.name || "Выберите тип"}
+          </Dropdown.Toggle>
           <Dropdown.Menu>
             {types.map(type => (
               <Dropdown.Item key={type.id} onClick={() => constructorStore.setType(type)}>
@@ -113,7 +117,9 @@ const Builder = observer(() => {
         </Dropdown>
 
         <Dropdown className="mt-3">
-          <Dropdown.Toggle>{constructorStore.selectedVariant?.name || "Выберите форму"}</Dropdown.Toggle>
+          <Dropdown.Toggle style={{ backgroundColor: "#f27cab", borderColor: "#f27cab", color: "#fff"}}>
+            {constructorStore.selectedVariant?.name || "Выберите форму"}
+          </Dropdown.Toggle>
           <Dropdown.Menu>
           {variants.map(variant => (
             <Dropdown.Item
@@ -123,42 +129,78 @@ const Builder = observer(() => {
                 if (!variant.disabled) constructorStore.setVariant(variant);
               }}
             >
-              {variant.name} ({variant.b_type?.name || "Тип"})
+              {variant.name} 
               {!variant.availability && " — недоступно"}
             </Dropdown.Item>
           ))}
         </Dropdown.Menu>
 
         </Dropdown>
+        
+        <Form.Check
+          type="switch"
+          id="size-toggle"
+          label={smallSize ? "Форма 2х2 см" : "Форма 3х3 см"}
+          checked={smallSize}
+          onChange={() => {
+            setSmallSize(prev => !prev); // для CanvasPreview
+            constructorStore.setSmallSize(!smallSize); // для цены
+          }}
+          className="mb-2 mt-2"
+        />
 
         {attributes.map(attr => (
-  <div className="mt-4" key={attr.id}>
-    <h6>{attr.name}</h6>
-    <div className="d-flex flex-wrap gap-2">
-      {/* Кнопка для снятия выбора */}
-      <button
-        className={`btn btn-outline-secondary btn-sm ${!constructorStore.getSelectedVal(attr.id) ? "active" : ""}`}
-        onClick={() => constructorStore.removeAttribute(attr.id)}
-      >
-        Нет
-      </button>
+          <div className="mt-4" key={attr.id}>
+          <h6>{attr.name}</h6>
+          <div className="d-flex flex-wrap gap-2">
+            {/* Кнопка для снятия выбора */}
+          <button
+            className={`btn btn-outline-secondary btn-sm ${!constructorStore.getSelectedVal(attr.id) ? "active" : ""}`}
+            onClick={() => constructorStore.removeAttribute(attr.id)}
+          >
+            Нет
+          </button>
 
-      {(attributeValues[attr.id] || []).map(val => (
-        <button
-          key={val.id}
-          className={`btn btn-outline-primary btn-sm ${
-            constructorStore.getSelectedVal(attr.id)?.id === val.id ? "active" : ""
-          }`}
-          onClick={() => constructorStore.addAttributeValue(attr, val)}
-          style={val.hexColor ? {
-            backgroundColor: val.hexColor,
-            color: "#fff",
-            borderColor: val.hexColor
-          } : {}}
-        >
-          {val.hexColor ? "" : val.name}
-        </button>
-      ))}
+      {(attributeValues[attr.id] || []).map(val => {
+        const isSelected = constructorStore.getSelectedVal(attr.id)?.id === val.id;
+        const imgUrl = val.img ? process.env.REACT_APP_API_URL + val.img : null;
+
+        const buttonStyle = {
+          width:  val.hexColor ? 20 : "auto",
+          height: 40,
+          padding: imgUrl || val.hexColor ? 0 : "0 10px",
+          borderWidth: 2,
+          borderStyle: "solid",
+          borderColor: isSelected ? "#f27cab" : "#ccc",
+          backgroundColor: val.hexColor && !imgUrl ? val.hexColor : "#fff",
+          color: val.hexColor ? "#fff" : "#000",
+          borderRadius: 4,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center"
+        };
+
+  return (
+    <button
+      key={val.id}
+      className="btn btn-sm"
+      onClick={() => constructorStore.addAttributeValue(attr, val)}
+      style={buttonStyle}
+      title={val.name}
+    >
+      {imgUrl ? (
+        <img
+          src={imgUrl}
+          alt={val.name}
+          style={{ width: 36, height: 36, objectFit: "cover", borderRadius: 3 }}
+        />
+      ) : !val.hexColor ? (
+        val.name
+      ) : null}
+    </button>
+  );
+})}
+
     </div>
   </div>
 ))}
@@ -171,14 +213,14 @@ const Builder = observer(() => {
 
       <Col md={9}>
       <div className="d-flex align-items-center mb-2">
-  <Form.Check 
-    type="switch"
-    id="background-toggle"
-    label={darkBackground ? "Тёмный фон" : "Светлый фон"}
-    checked={darkBackground}
-    onChange={() => setDarkBackground(prev => !prev)}
-  />
-</div>
+        <Form.Check 
+          type="switch"
+          id="background-toggle"
+          label={darkBackground ? "Тёмный фон" : "Светлый фон"}
+          checked={darkBackground}
+          onChange={() => setDarkBackground(prev => !prev)}
+        />
+      </div>
 
 <div
   className={`visual-preview d-flex flex-wrap justify-content-around mt-2 align-items-center border p-4 ${darkBackground ? 'bg-dark' : 'bg-light'}`}
@@ -195,6 +237,7 @@ const Builder = observer(() => {
         decorImg={getSelectedDecorImg(view)}
         baseColor={getSelectedBaseColor()} 
         view={view}
+        scale={smallSize ? 0.66 : 1}
       />
     </div>
   ))

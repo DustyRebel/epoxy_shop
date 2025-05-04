@@ -6,6 +6,7 @@ export default class ConstructorStore {
     this._selectedVariant = null;
     this._selectedAttributes = []; // [{ attribute, value }]
     this._price = 0;
+    this._smallSizeEnabled = false;
     makeAutoObservable(this);
   }
 
@@ -40,7 +41,13 @@ export default class ConstructorStore {
       (sum, a) => sum + (a.value?.price || 0),
       0
     );
-    this._price = base + addons;
+    let total = base + addons;
+  
+    if (this._smallSizeEnabled) {
+      total = Math.round(total * 0.9); // скидка 10%
+    }
+  
+    this._price = total;
   }
 
   reset() {
@@ -69,7 +76,15 @@ export default class ConstructorStore {
     const selected = this.selectedAttributes.find(a => a.attribute.id === attributeId);
     return selected ? selected.value : null;
   }
+
+  setSmallSize(value) {
+    this._smallSizeEnabled = value;
+    this.updatePrice();
+  }
   
+  get smallSizeEnabled() {
+    return this._smallSizeEnabled;
+  }
 
 }
 

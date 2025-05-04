@@ -13,6 +13,7 @@ const CreateBAttributeVal = ({ show, onHide }) => {
   const [imgBack, setImgBack] = useState(null);
   const [imgSide, setImgSide] = useState(null);
   const [hexColor, setHexColor] = useState("");
+  const [previewImg, setPreviewImg] = useState(null);
 
   useEffect(() => {
     fetchBAttributes().then(setAttributes);
@@ -38,6 +39,10 @@ const CreateBAttributeVal = ({ show, onHide }) => {
     formData.append("bAttributeId", selectedAttr.id);
     formData.append("hexColor", hexColor);
 
+    if (previewImg) {
+      formData.append("img", previewImg); // ← загрузка preview-изображения
+    }
+
     const created = await createBAttributeVal(formData);
 
     // загрузка изображений
@@ -47,7 +52,7 @@ const CreateBAttributeVal = ({ show, onHide }) => {
 
     // очистка
     setName(""); setPrice(0); setAvailability(true); setSelectedAttr(null);
-    setImgFront(null); setImgBack(null); setImgSide(null);
+    setImgFront(null); setImgBack(null); setImgSide(null); setPreviewImg(null);
     onHide();
   };
 
@@ -69,7 +74,11 @@ const CreateBAttributeVal = ({ show, onHide }) => {
         <Form.Control className="mt-2" type="number" value={price} onChange={e => setPrice(+e.target.value)} placeholder="Цена" />
         <Form.Check className="mt-2" type="checkbox" label="Доступен" checked={availability} onChange={e => setAvailability(e.target.checked)} />
 
-        <Form.Label className="mt-3">Изображения</Form.Label>
+        <Form.Label className="mt-3">Превью изображения</Form.Label>
+        <Form.Control type="file" onChange={e => setPreviewImg(e.target.files[0])} />
+        <Form.Text muted>Показывается в меню выбора (не отображается на изделии)</Form.Text>
+        
+        <Form.Label className="mt-3">Изображения для конструктора</Form.Label>
         <Form.Control type="file" onChange={e => selectImg(e, setImgFront)} className="mt-1" />
         <Form.Text muted>Front</Form.Text>
         <Form.Control type="file" onChange={e => selectImg(e, setImgBack)} className="mt-1" />
