@@ -12,8 +12,8 @@ class BAttributeValController {
       let imgFileName = null;
 
       // Если есть изображение-превью
-      if (req.files && req.files.img) {
-        const file = req.files.img;
+      if (req.files && req.files.previewImg) {
+        const file = req.files.previewImg;
         imgFileName = uuid.v4() + path.extname(file.name);
         await file.mv(path.resolve(__dirname, "..", "static", imgFileName));
       }

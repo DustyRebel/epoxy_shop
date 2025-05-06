@@ -1,7 +1,7 @@
 const ApiError = require('../error/ApiError');
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const {User, Cart, Checkout, Shipping, CheckoutItem, Item} = require('../models/models')
+const {User, Cart, Checkout, Shipping, CheckoutItem, Item, BCheckout, BCheckoutItem} = require('../models/models')
 
 const generateJwt = (id, email, role) => {
     return jwt.sign(
@@ -71,6 +71,26 @@ class UserController{
             next(ApiError.badRequest(e.message));
         }
     }
+
+    
+async getUserConstructorOrders(req, res, next) {
+    try {
+        const { userId } = req.params;
+
+        const orders = await BCheckout.findAll({
+            where: { userId },
+            include: [
+                { model: Shipping },
+                { model: BCheckoutItem }
+            ],
+            order: [['createdAt', 'DESC']]
+        });
+
+        return res.json(orders);
+    } catch (e) {
+        next(ApiError.badRequest(e.message));
+    }
+}
 }
 
 module.exports = new UserController()

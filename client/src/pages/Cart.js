@@ -55,11 +55,11 @@ const Cart = () => {
         }
     
         const phoneRegex = /^\+7\d{10}$/;
-        const tgRegex = /^@\w{5,}$/;
+        //const tgRegex = /^@\w{5,}$/;
     
         const newErrors = {
             phone: phoneRegex.test(formData.phone) ? '' : 'Введите правильный номер',
-            tg: tgRegex.test(formData.tg) ? '' : 'Введите адрес Telegram в формате @nickname'
+            //tg: tgRegex.test(formData.tg) ? '' : 'Введите адрес Telegram в формате @nickname'
         };
     
         setErrors(newErrors);
@@ -159,11 +159,7 @@ const Cart = () => {
                                 value={formData.tg}
                                 placeholder="@nickname"
                                 onChange={e => setFormData({ ...formData, tg: e.target.value })}
-                                isInvalid={!!errors.tg}
                             />
-                            <Form.Control.Feedback type="invalid">
-                                {errors.tg}
-                            </Form.Control.Feedback>
                         </Form.Group>
 
                         <Form.Group className="mb-2">

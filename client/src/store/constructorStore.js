@@ -2,7 +2,8 @@ import { makeAutoObservable } from "mobx";
 
 export default class ConstructorStore {
   constructor() {
-    this._selectedType = null;
+    this._bTypes = [];
+    this._selectedBType = null;
     this._selectedVariant = null;
     this._selectedAttributes = []; // [{ attribute, value }]
     this._price = 0;
@@ -11,9 +12,14 @@ export default class ConstructorStore {
   }
 
   setType(type) {
-    this._selectedType = type;
+    this._selectedBType = type;
     this.reset();
   }
+
+  setBTypes(types) {
+    this._bTypes = types;
+  }
+
 
   setVariant(variant) {
     this._selectedVariant = variant;
@@ -21,12 +27,24 @@ export default class ConstructorStore {
   }
 
   addAttributeValue(attribute, value) {
+    console.log("Добавляем значение", value, "для атрибута", attribute);
+  
+    // Проверка: если у атрибута есть renderRole
+    if (attribute.renderRole) {
+      // Удаляем все выбранные атрибуты с тем же renderRole
+      this._selectedAttributes = this._selectedAttributes.filter(
+        a => a.attribute.renderRole !== attribute.renderRole
+      );
+    }
+  
+    // Добавляем новый или заменяем
     const existing = this._selectedAttributes.find(a => a.attribute.id === attribute.id);
     if (existing) {
       existing.value = value;
     } else {
       this._selectedAttributes.push({ attribute, value });
     }
+  
     this.updatePrice();
   }
 
@@ -46,6 +64,10 @@ export default class ConstructorStore {
     if (this._smallSizeEnabled) {
       total = Math.round(total * 0.9); // скидка 10%
     }
+
+    if (this._selectedBType?.name === "Серьги") {
+      total = Math.round(total * 2);
+    }
   
     this._price = total;
   }
@@ -56,8 +78,8 @@ export default class ConstructorStore {
     this._price = 0;
   }
 
-  get selectedType() {
-    return this._selectedType;
+  get selectedBType() {
+    return this._selectedBType;
   }
 
   get selectedVariant() {
@@ -70,6 +92,10 @@ export default class ConstructorStore {
 
   get totalPrice() {
     return this._price;
+  }
+
+  get bTypes() {
+    return this._bTypes;
   }
 
   getSelectedVal(attributeId) {

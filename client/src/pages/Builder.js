@@ -9,6 +9,9 @@ import {
 } from "../http/bConstructorAPI";
 import { Dropdown, Row, Col, Button, Form, Container } from "react-bootstrap";
 import CanvasPreview from "../components/CanvasPreview";
+import { downloadConstructorState, uploadConstructorState, uploadConstructorStateFromJson } from "../utils/constructorStateUtils";
+import CheckoutModal from "../components/modals/CheckoutModal";
+import { jwtDecode } from "jwt-decode";
 
 const viewLabels = {
   front: "Вид спереди",
@@ -18,12 +21,23 @@ const viewLabels = {
 
 const Builder = observer(() => {
   const { constructor: constructorStore } = useContext(Context);
+  const { user } = useContext(Context);
+  let role = '';
+  try {
+              const token = localStorage.getItem('token');
+              if (token) {
+                  const decoded = jwtDecode(token);
+                  role = decoded.role;
+              }
+          } catch (e) {
+              console.error("Ошибка при декодировании токена", e);
+          }
   const [types, setTypes] = useState([]);
   const [variants, setVariants] = useState([]);
   const [attributes, setAttributes] = useState([]);
   const [attributeValues, setAttributeValues] = useState({});
   const [darkBackground, setDarkBackground] = useState(false);
-  const [smallSize, setSmallSize] = useState(false); 
+  const [showCheckout, setShowCheckout] = useState(false);
 
 
   useEffect(() => {
@@ -31,7 +45,7 @@ const Builder = observer(() => {
   }, []);
 
   useEffect(() => {
-    if (constructorStore.selectedType) {
+    if (constructorStore.selectedBType) {
       // сбрасываем старые данные
       setAttributes([]);
       setAttributeValues({});
@@ -39,7 +53,7 @@ const Builder = observer(() => {
   
       fetchBVariants().then(data => {
         const filtered = data
-          .filter(v => v.bTypeId === constructorStore.selectedType.id)
+          .filter(v => v.bTypeId === constructorStore.selectedBType.id)
           .map(v => ({
             ...v,
             disabled: !v.availability
@@ -47,7 +61,7 @@ const Builder = observer(() => {
         setVariants(filtered);
       });
     }
-  }, [constructorStore.selectedType]);
+  }, [constructorStore.selectedBType]);
   
   
 
@@ -64,48 +78,64 @@ const Builder = observer(() => {
     }
   }, [constructorStore.selectedVariant]);
 
+  useEffect(() => {
+    const restoreFlag = new URLSearchParams(window.location.search).get("restore");
+    if (restoreFlag && localStorage.getItem("constructor_restore_json")) {
+      const json = JSON.parse(localStorage.getItem("constructor_restore_json"));
+      uploadConstructorStateFromJson(json, constructorStore);
+      localStorage.removeItem("constructor_restore_json");
+    }
+  }, []);
+  
+
   const getImgByView = (view) => {
     return constructorStore.selectedVariant?.b_variant_imgs?.find(img => img.view === view)?.link;
   };
 
-  const getSelectedHexColor = () => {
-    const colorAttr = attributes.find(attr => attr.name.toLowerCase() === "цвет");
-    const selected = constructorStore.selectedAttributes.find(a => a.attribute.id === colorAttr?.id);
-    return selected?.value?.hexColor || null;
+  const getAttrValByRole = (role) => {
+    const matchingAttrs = attributes.filter(a => a.renderRole === role);
+    for (const attr of matchingAttrs) {
+      const selected = constructorStore.selectedAttributes.find(sa => sa.attribute.id === attr.id);
+      if (selected?.value) return selected.value;
+    }
+    return null;
+  };
+  
+  const getSelectedHexColor = () => getAttrValByRole("colorOverlay")?.hexColor || null;
+  const getSelectedBaseColor = () => getAttrValByRole("baseColor")?.hexColor || null;
+
+  const getSelectedBaseImg = (view) => {
+    const val = getAttrValByRole("baseColor");
+    const img = val?.b_attribute_val_imgs?.find(i => i.view === view);
+    return img ? process.env.REACT_APP_API_URL + img.link : null;
   };
 
   const getSelectedGlitterImg = (view) => {
-    const glitterAttr = attributes.find(attr => attr.name.toLowerCase().includes("глиттер"));
-    const selected = constructorStore.selectedAttributes.find(a => a.attribute.id === glitterAttr?.id);
-    const img = selected?.value?.b_attribute_val_imgs?.find(i => i.view === view);
+    const val = getAttrValByRole("glitterImg");
+    const img = val?.b_attribute_val_imgs?.find(i => i.view === view);
     return img ? process.env.REACT_APP_API_URL + img.link : null;
   };
-
   const getSelectedDecorImg = (view) => {
-    const decorAttr = attributes.find(attr => attr.name.toLowerCase().includes("сухоцветы"));
-    const selected = constructorStore.selectedAttributes.find(a => a.attribute.id === decorAttr?.id);
-    const img = selected?.value?.b_attribute_val_imgs?.find(i => i.view === view);
+    const val = getAttrValByRole("decorImg");
+    console.log("DecorAttrVal:", getAttrValByRole("decorImg"));
+    const img = val?.b_attribute_val_imgs?.find(i => i.view === view);
     return img ? process.env.REACT_APP_API_URL + img.link : null;
   };
-
-  const getSelectedBaseColor = () => {
-    const baseAttr = attributes.find(attr => attr.name.toLowerCase().includes("подложка"));
-    const selected = constructorStore.selectedAttributes.find(a => a.attribute.id === baseAttr?.id);
-    return selected?.value?.hexColor || null;
-  };
-  
-  
   
 
   return (
     <Container fluid className="px-4">
     <Row className="p-3">
-      <Col md={3}>
+      <Col md={3}  style={{
+    maxHeight: "calc(100vh - 100px)",
+    overflowY: "auto",
+    paddingRight: "8px"
+  }}>
         <h4>Цена: {constructorStore.totalPrice} ₽</h4>
 
         <Dropdown className="mt-3 ">
           <Dropdown.Toggle  style={{ backgroundColor: "#f27cab", borderColor: "#f27cab", color: "#fff"}}>
-            {constructorStore.selectedType?.name || "Выберите тип"}
+            {constructorStore.selectedBType?.name || "Выберите тип"}
           </Dropdown.Toggle>
           <Dropdown.Menu>
             {types.map(type => (
@@ -138,16 +168,16 @@ const Builder = observer(() => {
         </Dropdown>
         
         <Form.Check
-          type="switch"
-          id="size-toggle"
-          label={smallSize ? "Форма 2х2 см" : "Форма 3х3 см"}
-          checked={smallSize}
-          onChange={() => {
-            setSmallSize(prev => !prev); // для CanvasPreview
-            constructorStore.setSmallSize(!smallSize); // для цены
-          }}
-          className="mb-2 mt-2"
-        />
+  type="switch"
+  id="size-toggle"
+  label={constructorStore.smallSizeEnabled ? "Форма 2х2 см" : "Форма 3х3 см"}
+  checked={constructorStore.smallSizeEnabled}
+  onChange={() => {
+    constructorStore.setSmallSize(!constructorStore.smallSizeEnabled);
+  }}
+  className="mb-2 mt-2"
+/>
+
 
         {attributes.map(attr => (
           <div className="mt-4" key={attr.id}>
@@ -180,35 +210,72 @@ const Builder = observer(() => {
           justifyContent: "center"
         };
 
-  return (
-    <button
-      key={val.id}
-      className="btn btn-sm"
-      onClick={() => constructorStore.addAttributeValue(attr, val)}
-      style={buttonStyle}
-      title={val.name}
-    >
-      {imgUrl ? (
-        <img
-          src={imgUrl}
-          alt={val.name}
-          style={{ width: 36, height: 36, objectFit: "cover", borderRadius: 3 }}
-        />
-      ) : !val.hexColor ? (
-        val.name
-      ) : null}
-    </button>
-  );
-})}
+      return (
+        <button
+          key={val.id}
+          className="btn btn-sm"
+          onClick={() => constructorStore.addAttributeValue(attr, val)}
+          style={buttonStyle}
+          title={val.name}
+        >
+          {imgUrl ? (
+            <img
+              src={imgUrl}
+              alt={val.name}
+              style={{ width: 36, height: 36, objectFit: "cover", borderRadius: 3 }}
+            />
+          ) : !val.hexColor ? (
+            val.name
+          ) : null}
+        </button>
+      );
+    })}
 
-    </div>
-  </div>
-))}
+        </div>
+      </div>
+    ))}
 
 
-        <Button className="mt-4" variant="success">
-          Оформить заказ
-        </Button>
+<div className="mt-4 d-flex flex-column gap-2">
+  <Button
+    variant="outline-primary"
+    onClick={() => downloadConstructorState(constructorStore)}
+  >
+    Скачать JSON
+  </Button>
+Выберите JSON-файл для восстановления
+  <Form.Control
+    type="file"
+    accept=".json"
+    onChange={(e) => {
+      const file = e.target.files[0];
+      if (file) {
+        uploadConstructorState(file, constructorStore)
+          .then(() => console.log("Состояние конструктора восстановлено"))
+          .catch((err) => alert("Ошибка загрузки JSON: " + err.message));
+      }
+    }}
+  />
+{role === 'USER' || role === 'ADMIN' ? (
+  <Button variant="success" onClick={() => setShowCheckout(true)}>
+    Оформить заказ
+  </Button>
+) : (
+  <Button variant="secondary" disabled>
+    Войдите, чтобы оформить заказ
+  </Button>
+)}
+
+
+<CheckoutModal
+  show={showCheckout}
+  onHide={() => setShowCheckout(false)}
+  price={constructorStore.totalPrice}
+/>
+
+</div>
+
+        
       </Col>
 
       <Col md={9}>
@@ -236,15 +303,16 @@ const Builder = observer(() => {
         hexColor={getSelectedHexColor()}
         decorImg={getSelectedDecorImg(view)}
         baseColor={getSelectedBaseColor()} 
+        baseImg={getSelectedBaseImg(view)}
         view={view}
-        scale={smallSize ? 0.66 : 1}
+        scale={constructorStore.smallSizeEnabled ? 0.66 : 1}
       />
     </div>
   ))
 ) : (
   <div className={darkBackground ? "text-light" : "text-muted"}>
-  Примерный вид вашего изделия будет здесь
-</div>
+    Примерный вид вашего изделия будет здесь
+  </div>
 )}
 
         </div>

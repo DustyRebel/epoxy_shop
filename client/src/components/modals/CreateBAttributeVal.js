@@ -40,7 +40,7 @@ const CreateBAttributeVal = ({ show, onHide }) => {
     formData.append("hexColor", hexColor);
 
     if (previewImg) {
-      formData.append("img", previewImg); // ← загрузка preview-изображения
+      formData.append("previewImg", previewImg); 
     }
 
     const created = await createBAttributeVal(formData);

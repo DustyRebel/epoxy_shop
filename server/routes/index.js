@@ -14,6 +14,8 @@ const bTypeRouter = require('./bTypeRouter');
 const bAttributeRouter = require('./bAttributeRouter');
 const bAttributeValRouter = require('./bAttributeValRouter');
 const bAttributeValImgRouter = require('./bAttributeValImgRouter');
+const bCheckoutRouter = require('./bCheckoutRouter');
+const adminOrderRouter = require('./adminOrderRouter');
 
 
 
@@ -31,5 +33,7 @@ router.use('/btype', bTypeRouter);
 router.use('/battribute', bAttributeRouter);
 router.use('/battributeval', bAttributeValRouter);
 router.use('/battributevalimg', bAttributeValImgRouter);
+router.use('/bcheckout', bCheckoutRouter);
+router.use('/admin/orders', adminOrderRouter);
 
 module.exports = router

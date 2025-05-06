@@ -24,3 +24,8 @@ export const fetchUserOrders = async (userId) => {
     const { data } = await $authHost.get('api/user/' + userId);
     return data;
 };
+
+export const fetchUserConstructorOrders = async (userId) => {
+    const { data } = await $authHost.get(`api/user/constructor/${userId}`);
+    return data;
+};

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 
-const CanvasPreview = ({ formImg, glitterImg, decorImg, hexColor, baseColor, view, scale = 1 }) => {
+const CanvasPreview = ({ formImg, glitterImg, decorImg, hexColor, baseColor, baseImg, view, scale = 1 }) => {
   const canvasRef = useRef();
 
   useEffect(() => {
@@ -22,8 +22,9 @@ const CanvasPreview = ({ formImg, glitterImg, decorImg, hexColor, baseColor, vie
     Promise.all([
       loadImage(formImg),
       loadImage(glitterImg),
-      loadImage(decorImg)
-    ]).then(([form, glitter, decor]) => {
+      loadImage(decorImg),
+      loadImage(baseImg)
+    ]).then(([form, glitter, decor, base]) => {
       if (!form) return;
 
       const baseLayer = document.createElement("canvas");
@@ -45,31 +46,72 @@ const CanvasPreview = ({ formImg, glitterImg, decorImg, hexColor, baseColor, vie
       };
 
       // 1. Подложка
-      if (baseColor) {
-        drawScaled(baseCtx, form);
-        baseCtx.globalCompositeOperation = "source-in";
+// 1. Подложка (цветовая или графическая)
+if (baseColor || base) {
+  if (base) {
+    const imgCanvas = document.createElement("canvas");
+    const imgCtx = imgCanvas.getContext("2d");
+    imgCanvas.width = width;
+    imgCanvas.height = height;
 
-        const [r, g, b] = parseHex(baseColor);
-        baseCtx.fillStyle = `rgba(${r},${g},${b},1)`;
+    // Масштабируем изображение
+    const w = width * scale;
+    const h = height * scale;
+    const x = (width - w) / 2;
+    const y = (height - h) / 2;
+    imgCtx.drawImage(base, x, y, w, h);
 
-        if (view === "front" || view === "back") {
-          baseCtx.fillRect(0, 0, width, height);
-        } else if (view === "side") {
-          const mask = document.createElement("canvas");
-          mask.width = width;
-          mask.height = height;
-          const maskCtx = mask.getContext("2d");
+    // Маска формы
+    const maskCanvas = document.createElement("canvas");
+    maskCanvas.width = width;
+    maskCanvas.height = height;
+    const maskCtx = maskCanvas.getContext("2d");
 
-          maskCtx.drawImage(form, 0, 0, width, height);
-          maskCtx.globalCompositeOperation = "destination-in";
-          maskCtx.fillStyle = "black";
-          maskCtx.fillRect(width / 1.95, 0, width / 2, height);
+    if (view === "side") {
+      // Маска правая половина формы сбоку
+      maskCtx.drawImage(form, 0, 0, width, height);
+      maskCtx.globalCompositeOperation = "destination-in";
+      maskCtx.fillStyle = "black";
+      maskCtx.fillRect(width / 1.95, 0, width / 2, height);
+    } else {
+      drawScaled(maskCtx, form);
+    }
 
-          baseCtx.drawImage(mask, 0, 0);
-          baseCtx.globalCompositeOperation = "source-in";
-          baseCtx.fillRect(0, 0, width, height);
-        }
-      }
+    // Применяем маску
+    imgCtx.globalCompositeOperation = "destination-in";
+    imgCtx.drawImage(maskCanvas, 0, 0);
+
+    // Рендерим результат
+    baseCtx.drawImage(imgCanvas, 0, 0);
+  } else if (baseColor) {
+    drawScaled(baseCtx, form);
+    baseCtx.globalCompositeOperation = "source-in";
+
+    const [r, g, b] = parseHex(baseColor);
+    baseCtx.fillStyle = `rgba(${r},${g},${b},1)`;
+
+    if (view === "front" || view === "back") {
+      baseCtx.fillRect(0, 0, width, height);
+    } else if (view === "side") {
+      const mask = document.createElement("canvas");
+      mask.width = width;
+      mask.height = height;
+      const maskCtx = mask.getContext("2d");
+
+      maskCtx.drawImage(form, 0, 0, width, height);
+      maskCtx.globalCompositeOperation = "destination-in";
+      maskCtx.fillStyle = "black";
+      maskCtx.fillRect(width / 1.95, 0, width / 2, height);
+
+      baseCtx.drawImage(mask, 0, 0);
+      baseCtx.globalCompositeOperation = "source-in";
+      baseCtx.fillRect(0, 0, width, height);
+    }
+  }
+}
+
+
+
 
       // 2. Форма
       drawScaled(contentCtx, form);
@@ -80,6 +122,7 @@ const CanvasPreview = ({ formImg, glitterImg, decorImg, hexColor, baseColor, vie
 
       // 3. Декор
       if (decor) {
+        console.log("DECOR:", decorImg);
         const decorCanvas = document.createElement("canvas");
         const decorCtx = decorCanvas.getContext("2d");
         decorCanvas.width = width;
@@ -123,17 +166,17 @@ const CanvasPreview = ({ formImg, glitterImg, decorImg, hexColor, baseColor, vie
       // 6. Финальный рендер
       ctx.clearRect(0, 0, width, height);
       if (view === "front") {
-        if (baseColor) ctx.drawImage(baseLayer, 0, 0);
+        if (baseColor|| baseImg) ctx.drawImage(baseLayer, 0, 0);
         ctx.drawImage(contentLayer, 0, 0);
       } else if (view === "side") {
         ctx.drawImage(contentLayer, 0, 0);
-        if (baseColor) ctx.drawImage(baseLayer, 0, 0);
+        if (baseColor|| baseImg) ctx.drawImage(baseLayer, 0, 0);
       } else if (view === "back") {
         ctx.drawImage(contentLayer, 0, 0);
-        if (baseColor) ctx.drawImage(baseLayer, 0, 0);
+        if (baseColor|| baseImg) ctx.drawImage(baseLayer, 0, 0);
       }
     });
-  }, [formImg, glitterImg, decorImg, hexColor, baseColor, view, scale]);
+  }, [formImg, glitterImg, decorImg, hexColor, baseImg, baseColor, view, scale]);
 
   const drawColor = (ctx, hexColor, width, height, alpha = 0.5) => {
     if (!hexColor) return;

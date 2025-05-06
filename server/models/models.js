@@ -68,6 +68,7 @@ const Checkout = sequelize.define('checkout', {
     tg: {type: DataTypes.STRING, allowNull: true},
     address: {type: DataTypes.STRING, allowNull: false},
     price: {type: DataTypes.INTEGER, allowNull: false},
+    done: {type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false},
 })
 
 const GalleryItem = sequelize.define('gallery_item', {
@@ -88,15 +89,9 @@ const BCheckout = sequelize.define('b_checkout', {
     tg: {type: DataTypes.STRING, allowNull: true},
     address: {type: DataTypes.STRING, allowNull: false},
     price: {type: DataTypes.INTEGER, allowNull: false},
+    done: {type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false},
 })
 
-const BCart = sequelize.define('b_cart', {
-    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-})
-
-const BCartItem = sequelize.define('b_cart_item', {
-    id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-})
 
 const BType = sequelize.define('b_type', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
@@ -142,6 +137,11 @@ const BAttributeValImg = sequelize.define('b_attribute_val_img', {
     link: { type: DataTypes.STRING, allowNull: false },
     view: { type: DataTypes.STRING, allowNull: false }, // front, back, side
 });
+
+const BCheckoutItem = sequelize.define('b_checkout_item', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    json: { type: DataTypes.JSONB, allowNull: false }
+  });
 
 const BAttributeVariant = sequelize.define('b_attribute_variant', {}, { timestamps: false });
 
@@ -199,36 +199,15 @@ BCheckout.belongsTo(Shipping)
 User.hasMany(BCheckout)
 BCheckout.belongsTo(User)
 
-User.hasOne(BCart)
-BCart.belongsTo(User)
-
-BCart.hasOne(BCheckout)
-BCheckout.belongsTo(BCart)
-
-BCart.hasMany(BCartItem)
-BCartItem.belongsTo(BCart)
-
 BAttribute.belongsToMany(BVariant, { through: BAttributeVariant });
 BVariant.belongsToMany(BAttribute, { through: BAttributeVariant });
 
-BVariant.hasMany(BCart)
-BCart.belongsTo(BVariant)
 
 BType.hasMany(BVariant)
 BVariant.belongsTo(BType)
 
-BAttribute.hasMany(BCartItem)
-BCartItem.belongsTo(BAttribute)
-
-BAttributeVal.hasMany(BCartItem)
-BCartItem.belongsTo(BAttributeVal)
-
 BAttribute.hasMany(BAttributeVal)
 BAttributeVal.belongsTo(BAttribute)
-
-//BVariant.hasMany(BAttribute)
-//BAttribute.belongsTo(BVariant)
-
 
 Checkout.hasMany(CheckoutItem);
 CheckoutItem.belongsTo(Checkout);
@@ -242,6 +221,8 @@ BVariantImg.belongsTo(BVariant);
 BAttributeVal.hasMany(BAttributeValImg);
 BAttributeValImg.belongsTo(BAttributeVal);
 
+BCheckout.hasMany(BCheckoutItem);
+BCheckoutItem.belongsTo(BCheckout);
 
 
 module.exports = {
@@ -259,8 +240,6 @@ module.exports = {
     GalleryItem,
     GalleryImg,
     BCheckout,
-    BCart,
-    BCartItem,
     BType,
     BVariant,
     BAttribute,
@@ -269,4 +248,5 @@ module.exports = {
     BVariantImg,
     BAttributeValImg,
     BAttributeVariant,
+    BCheckoutItem,
 };

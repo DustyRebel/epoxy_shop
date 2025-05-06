@@ -5,7 +5,7 @@ import { createBVariant, fetchBTypes, fetchBAttributes } from "../../http/bConst
 import { Context } from "../../index";
 
 const CreateBVariant = observer(({ show, onHide }) => {
-  const { item } = useContext(Context);
+  const { constructor: constructorStore } = useContext(Context);
   const [name, setName] = useState("");
   const [price, setPrice] = useState(0);
   const [available, setAvailable] = useState(true);
@@ -22,7 +22,7 @@ const [attributes, setAttributes] = useState([]);
 const [selectedAttributes, setSelectedAttributes] = useState([]);
 
 useEffect(() => {
-  fetchBTypes().then(data => item.setTypes(data));
+  fetchBTypes().then(data => constructorStore.setBTypes(data));
   fetchBAttributes().then(data => setAttributes(data));
 }, []);
 
@@ -37,7 +37,7 @@ const addVariant = () => {
     formData.append("name", name);
     formData.append("price", price);
     formData.append("availability", available);
-    formData.append("bTypeId", item.selectedType.id);
+    formData.append("bTypeId", constructorStore.selectedBType.id);
     formData.append("attributeIds", JSON.stringify(selectedAttributes));
   
   
@@ -69,14 +69,14 @@ const addVariant = () => {
         <Form>
           <Dropdown className="mt-2">
             <Dropdown.Toggle>
-              {item.selectedType.name || "Выберите тип"}
+              {constructorStore.selectedBType?.name || "Выберите тип"}
             </Dropdown.Toggle>
             <Dropdown.Menu>
-              {item.types.map(type =>
-                <Dropdown.Item key={type.id} onClick={() => item.setSelectedType(type)}>
-                  {type.name}
-                </Dropdown.Item>
-              )}
+            {constructorStore.bTypes.map(type => (
+              <Dropdown.Item key={type.id} onClick={() => constructorStore.setType(type)}>
+                {type.name}
+              </Dropdown.Item>
+            ))}
             </Dropdown.Menu>
           </Dropdown>
           <Form.Control

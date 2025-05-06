@@ -1,6 +1,6 @@
 import { Component } from "react";
 import Admin from "./pages/Admin";
-import { BUILDER_ROUTE, ADMIN_ROUTE, USER_ROUTE, CART_ROUTE, GALLERY_ITEM_ROUTE, GALLERY_ROUTE, ITEM_ROUTE, LOGIN_ROUTE, REGISTRATION_ROUTE, SHOP_ROUTE } from "./utils/consts";
+import { BUILDER_ROUTE, ADMIN_ROUTE, ADMIN_ORDERS_ROUTE, USER_ROUTE, CART_ROUTE, GALLERY_ITEM_ROUTE, GALLERY_ROUTE, ITEM_ROUTE, LOGIN_ROUTE, REGISTRATION_ROUTE, SHOP_ROUTE } from "./utils/consts";
 import Cart from "./pages/Cart";
 import Shop from "./pages/Shop";
 import Auth from "./pages/Auth";
@@ -9,6 +9,7 @@ import ItemPage from "./pages/ItemPage";
 import Gallery from "./pages/Gallery";
 import GItemPage from "./pages/GItemPage";
 import Builder from "./pages/Builder";
+import AdminOrders from "./pages/AdminOrders";
 
 export const authRoutes = [
     
@@ -23,6 +24,10 @@ export const authRoutes = [
     {
         path: USER_ROUTE,
         Component: User
+    },
+    {
+        path: ADMIN_ORDERS_ROUTE,
+        Component: AdminOrders
     },
 
 ]

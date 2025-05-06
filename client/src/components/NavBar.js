@@ -5,7 +5,7 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import {NavLink} from "react-router-dom";
 import {Button} from "react-bootstrap";
-import { BUILDER_ROUTE, ADMIN_ROUTE, CART_ROUTE, GALLERY_ROUTE, LOGIN_ROUTE, SHOP_ROUTE, USER_ROUTE } from "../utils/consts";
+import { BUILDER_ROUTE, ADMIN_ROUTE, ADMIN_ORDERS_ROUTE, CART_ROUTE, GALLERY_ROUTE, LOGIN_ROUTE, SHOP_ROUTE, USER_ROUTE } from "../utils/consts";
 import {observer} from "mobx-react-lite"
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
@@ -48,7 +48,14 @@ const NavBar = observer(() => {
                 <Button variant={"outline-info"} onClick={() => navigate(BUILDER_ROUTE)} className="ms-2">Конструктор</Button>
                 <Button variant={"outline-light"} onClick={()=> navigate(GALLERY_ROUTE)} className="ms-2">Галерея</Button>
                 {role === 'ADMIN' && (
-                    <Button variant={"outline-light"} onClick={() => navigate(ADMIN_ROUTE)} className="ms-2">Админ</Button>
+                    <>
+                    <Button variant="outline-danger" onClick={() => navigate(ADMIN_ROUTE)} className="ms-2">
+                    Админ панель
+                    </Button>
+                    <Button variant="outline-danger" onClick={() => navigate(ADMIN_ORDERS_ROUTE)} className="ms-2">
+                    Админ заказы
+                    </Button>
+                </>
                 )}
                 <Button variant={"outline-light"} onClick={()=> navigate(CART_ROUTE)}className="ms-2">Корзина</Button>
                 <Button variant={"outline-light"} onClick={()=> navigate(USER_ROUTE)}className="ms-2">Мои заказы</Button>
@@ -56,7 +63,8 @@ const NavBar = observer(() => {
             </Nav>
             :
             <Nav className="ml-auto" >
-                <Button variant={"outline-light"} onClick={()=> navigate(GALLERY_ROUTE)}>Галерея</Button>
+                                <Button variant={"outline-info"} onClick={() => navigate(BUILDER_ROUTE)} className="ms-2">Конструктор</Button>
+                <Button variant={"outline-light"} onClick={()=> navigate(GALLERY_ROUTE)}className="ms-2">Галерея</Button>
                 <Button variant={"outline-light"} onClick={() => navigate(LOGIN_ROUTE)}className="ms-2">Авторизация</Button>
             </Nav>
         }
