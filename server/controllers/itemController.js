@@ -111,6 +111,20 @@ class ItemController{
             next(ApiError.badRequest(e.message))
         }
     }
+
+    async toggleAvailability(req, res, next) {
+        try {
+            const { id } = req.params;
+            const { availability } = req.body;
+            const item = await Item.findByPk(id);
+            if (!item) return next(ApiError.notFound('Товар не найден'));
+            item.availability = availability;
+            await item.save();
+            return res.json(item);
+        } catch (e) {
+            next(ApiError.badRequest(e.message));
+        }
+    }
 }
 
 module.exports = new ItemController()

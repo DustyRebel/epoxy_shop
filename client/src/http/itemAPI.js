@@ -43,3 +43,10 @@ export const deleteItems = async (id) => {
     const { data } = await $authHost.delete(`api/item${id}`);
     return data
 }
+
+export const toggleItemAvailability = async (id, currentAvailability) => {
+    const { data } = await $authHost.patch(`api/item/${id}/availability`, {
+        availability: !currentAvailability
+    });
+    return data;
+};

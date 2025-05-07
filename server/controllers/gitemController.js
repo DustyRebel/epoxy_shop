@@ -97,6 +97,34 @@ class GItemController{
             next(ApiError.badRequest(e.message))
         }
     }
+
+    async toggleAvailability(req, res, next) {
+        try {
+            const { id } = req.params;
+            const { availability } = req.body;
+            const item = await GalleryItem.findByPk(id);
+            if (!item) return next(ApiError.internal('Галерейный предмет не найден'));
+            item.availability = availability;
+            await item.save();
+            return res.json(item);
+        } catch (e) {
+            next(ApiError.badRequest(e.message));
+        }
+    }
+
+    async findByName(req, res, next) {
+        try {
+          const { name } = req.params;
+          const item = await GalleryItem.findOne({ where: { name } });
+          if (!item) {
+            return next(ApiError.internal('Предмет галереи с таким названием не найден'));
+          }
+          return res.json(item);
+        } catch (e) {
+          return next(ApiError.badRequest(e.message));
+        }
+      }
+    
 }
 
 module.exports = new GItemController()

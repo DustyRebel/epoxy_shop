@@ -12,8 +12,9 @@ const {
   class AdminOrderController {
     async getAllOrders(req, res, next) {
       try {
+        const done = req.query.done
         const orders = await Checkout.findAll({
-          where: { done: false },
+          where: { done },
           include: [
             { model: Shipping },
             { model: User },
@@ -29,52 +30,55 @@ const {
         return next(ApiError.badRequest(e.message));
       }
     }
-  
+    
     async getAllConstructorOrders(req, res, next) {
+      try {
+        const done = req.query.done
+        const orders = await BCheckout.findAll({
+          where: { done },
+          include: [
+            { model: BCheckoutItem },
+            { model: User },
+            { model: Shipping }
+          ],
+          order: [['createdAt', 'DESC']]
+        });
+        return res.json(orders);
+      } catch (e) {
+        return next(ApiError.badRequest(e.message));
+      }
+    }
+      
+  
+      async markDone(req, res, next) {
         try {
-          const orders = await BCheckout.findAll({
-            where: { done: false },
-            include: [
-              { model: BCheckoutItem },
-              { model: User },
-              { model: Shipping }
-            ],
-            order: [['createdAt', 'DESC']]
-          });
-          return res.json(orders);
+          const { id } = req.params;
+          const { done } = req.body;
+          const order = await Checkout.findByPk(id);
+          if (!order) return next(ApiError.notFound("Заказ не найден"));
+      
+          order.done = done;
+          await order.save();
+          return res.json({ success: true });
         } catch (e) {
           return next(ApiError.badRequest(e.message));
         }
       }
       
-  
-    async markDone(req, res, next) {
-      try {
-        const { id } = req.params;
-        const order = await Checkout.findByPk(id);
-        if (!order) return next(ApiError.notFound("Заказ не найден"));
-  
-        order.done = true;
-        await order.save();
-        return res.json({ success: true });
-      } catch (e) {
-        return next(ApiError.badRequest(e.message));
+      async markBCheckoutDone(req, res, next) {
+        try {
+          const { id } = req.params;
+          const { done } = req.body;
+          const order = await BCheckout.findByPk(id);
+          if (!order) return next(ApiError.notFound("Конструктор-заказ не найден"));
+      
+          order.done = done;
+          await order.save();
+          return res.json({ success: true });
+        } catch (e) {
+          return next(ApiError.badRequest(e.message));
+        }
       }
-    }
-  
-    async markBCheckoutDone(req, res, next) {
-      try {
-        const { id } = req.params;
-        const order = await BCheckout.findByPk(id);
-        if (!order) return next(ApiError.notFound("Конструктор-заказ не найден"));
-  
-        order.done = true;
-        await order.save();
-        return res.json({ success: true });
-      } catch (e) {
-        return next(ApiError.badRequest(e.message));
-      }
-    }
   }
   
   module.exports = new AdminOrderController();

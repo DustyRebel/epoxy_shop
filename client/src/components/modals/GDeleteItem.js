@@ -1,9 +1,8 @@
-import { deleteItems } from "../../http/gitemAPI";
 import React, { useState, useEffect } from "react";
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import  Form  from "react-bootstrap/Form";
-import {fetchItems} from "../../http/gitemAPI";
+import {fetchItems, fetchGItemByName, deleteItems } from "../../http/gitemAPI";
 
 const GDeleteItem = ({show, onHide}) => {
 
@@ -15,18 +14,13 @@ const GDeleteItem = ({show, onHide}) => {
       }, [show]);
 
       const deleteD = async () => {
-        const found = gallery_items.find(d => d.name.toLowerCase() === value.toLowerCase());
-        if (!found) {
-          alert('Предмет галереи с таким названием не найден!');
-          return;
-        }
-    
         try {
+          const found = await fetchGItemByName(value.trim());
           await deleteItems(`/${found.id}`);
           alert(`Предмет галереи "${found.name}" удалён`);
-          onHide(); // Закрываем модалку
+          onHide();
         } catch (e) {
-          alert('Ошибка при удалении: ' + e.message);
+          alert('Ошибка при удалении: ' + (e.response?.data?.message || e.message));
         }
       };
     

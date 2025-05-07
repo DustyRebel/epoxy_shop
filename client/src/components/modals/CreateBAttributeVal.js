@@ -78,21 +78,20 @@ const CreateBAttributeVal = ({ show, onHide }) => {
         <Form.Control type="file" onChange={e => setPreviewImg(e.target.files[0])} />
         <Form.Text muted>Показывается в меню выбора (не отображается на изделии)</Form.Text>
         
-        <Form.Label className="mt-3">Изображения для конструктора</Form.Label>
+        <Form.Label className="mt-3">Изображение спереди</Form.Label>
         <Form.Control type="file" onChange={e => selectImg(e, setImgFront)} className="mt-1" />
-        <Form.Text muted>Front</Form.Text>
+        <Form.Label className="mt-3">Изображение сзади</Form.Label>
         <Form.Control type="file" onChange={e => selectImg(e, setImgBack)} className="mt-1" />
-        <Form.Text muted>Back</Form.Text>
+        <Form.Label className="mt-3">Изображение сбоку</Form.Label>
         <Form.Control type="file" onChange={e => selectImg(e, setImgSide)} className="mt-1" />
-        <Form.Text muted>Side</Form.Text>
+        <Form.Text muted>Если вы создаёте цвет, укажите hex-код</Form.Text>
         <Form.Control
-        className="mt-2"
+        className="mt-1"
         type="text"
         value={hexColor}
         onChange={(e) => setHexColor(e.target.value)}
         placeholder="Цвет (например: #ffc0cb)"
         />
-        <Form.Text muted>Если вы создаёте цвет, укажите hex-код</Form.Text>
       </Modal.Body>
       <Modal.Footer>
         <Button variant="outline-secondary" onClick={onHide}>Отмена</Button>

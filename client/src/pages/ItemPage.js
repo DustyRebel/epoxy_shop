@@ -12,7 +12,8 @@ import { fetchRatings } from "../http/ratingAPI";
 import { useMemo } from "react";
 import { FaStar, FaRegStar, FaStarHalfAlt } from 'react-icons/fa';
 import { jwtDecode } from "jwt-decode";
-import { deleteRating } from "../http/ratingAPI"; // функция удаления отзыва
+import { deleteRating } from "../http/ratingAPI";
+import { toggleItemAvailability } from "../http/itemAPI";
 
 const renderStars = (rating) => {
     const stars = [];
@@ -153,6 +154,8 @@ const ItemPage = () => {
                     >
                         <h3>{item.price} руб.</h3>
                         <div className="d-flex align-items-center mt-3">
+                        {item.availability ? (
+                            <>
                             <Form.Control
                                 type="number"
                                 min={1}
@@ -163,7 +166,31 @@ const ItemPage = () => {
                             <Button variant="outline-dark" onClick={handleAddToCart}>
                                 В корзину
                             </Button>
+                            </>
+                        ) : (
+                            <Button variant="secondary" disabled className="w-100">
+                            Недоступно
+                            </Button>
+                        )}
                         </div>
+                        {role === 'ADMIN' && (
+                        <Button
+                            variant={item.availability ? "outline-danger" : "outline-success"}
+                            className="mt-2"
+                            onClick={async () => {
+                                try {
+                                    const updated = await toggleItemAvailability(item.id, item.availability);
+                                    setItem(prev => ({ ...prev, availability: updated.availability }));
+                                } catch (e) {
+                                    alert("Ошибка при обновлении доступности");
+                                    console.error(e);
+                                }
+                            }}
+                        >
+                            {item.availability ? "Сделать недоступным" : "Сделать доступным"}
+                        </Button>
+                    )}
+
                     </Card>
                     <div className="text-center mt-3" style={{ fontSize: 32 }}>
                         {renderStars(averageRating)} {/* визуальные звёзды */}

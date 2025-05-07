@@ -18,14 +18,22 @@ const GItemItem = ({gallery_item}) => {
         <Col md={4} className="mt-3" onClick={() => navigate(GALLERY_ITEM_ROUTE + '/' + gallery_item.id)}>
             <Card style={{ width: 300, cursor: 'pointer' }} border={"light"}>
                 <Image width={300} height={300} src={firstImage} />
-                <div className="text-black-50 mt-1 d-flex justify-content-between align-items-center">
-                    <div>{gallery_item.color || '...'}</div>
-                    <div className="d-flex align-items-center">
-                        <div>{gallery_item.rating || 0}</div>
-                        <Image width={18} height={18} src={star} />
-                    </div>
-                </div>
                 <div>{gallery_item.name}</div>
+                <div
+                className="text-black-50 mt-1"
+                style={{
+                    display: "-webkit-box",
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    maxHeight: "4.5em", // примерно 3 строки
+                    lineHeight: "1.5em"
+                }}
+                >
+                {gallery_item.description || '...'}
+                </div>
+                
             </Card>
         </Col>
     );

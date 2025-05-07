@@ -23,6 +23,7 @@ const Cart = () => {
         phone: '',
         tg: ''
     });
+    const hasUnavailableItems = cartItems.some(ci => ci.item && ci.item.availability === false);
     
 
     useEffect(() => {
@@ -32,7 +33,8 @@ const Cart = () => {
 
     const loadCart = async () => {
         const data = await fetchCartItems();
-        setCartItems(data);
+        const sorted = [...data].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        setCartItems(sorted);
     };
 
     const handleQuantityChange = async (itemId, quantity) => {
@@ -100,18 +102,23 @@ const Cart = () => {
                     <h2>Корзина</h2>
                     {cartItems.map(ci => (
                         <Row key={ci.id} className="mb-3 align-items-center">
-                            <Col md={2}>
-                            {ci.item.shop_imgs?.length > 0 ? (
-  <Image
-    src={process.env.REACT_APP_API_URL + ci.item.shop_imgs[0].link}
-    
-    fluid
-  />
-) : (
-  <div style={{ width: 100, height: 100, background: '#ccc' }} />
-)}
+                        <Col md={2}>
+                        {ci.item.shop_imgs?.length > 0 ? (
+                            <Image
+                            src={process.env.REACT_APP_API_URL + ci.item.shop_imgs[0].link}
+                            fluid
+                            />
+                        ) : (
+                            <div style={{ width: 100, height: 100, background: '#ccc' }} />
+                        )}
+                        </Col>
+                            <Col md={4}> {!ci.item.availability && (
+                                <div className="text-danger mb-1" style={{ fontSize: 12 }}>
+                                Недоступно для заказа
+                                </div>
+                            )}
+                            {ci.item.name}
                             </Col>
-                            <Col md={4}>{ci.item.name}</Col>
                             <Col md={2}>{ci.item.price} руб.</Col>
                             <Col md={2}>
                                 <Form.Control
@@ -182,7 +189,19 @@ const Cart = () => {
                                 ))}
                             </Form.Select>
                         </Form.Group>
-                        <Button variant="dark" onClick={handleOrder} disabled={!selectedShipping}>Оформить заказ</Button>
+                        {hasUnavailableItems && (
+                        <div className="text-danger mb-2">
+                            Один или несколько товаров недоступны для заказа
+                        </div>
+                        )}
+
+                        <Button
+                        variant="dark"
+                        onClick={handleOrder}
+                        disabled={!selectedShipping || hasUnavailableItems}
+                        >
+                        Оформить заказ
+                        </Button>
                     </Form>
                 </Col>
             </Row>

@@ -6,17 +6,18 @@ const AdminOrders = () => {
   const [orders, setOrders] = useState([]);
   const [showConstructorOrders, setShowConstructorOrders] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showCompleted, setShowCompleted] = useState(false);
 
   useEffect(() => {
     loadOrders();
-  }, [showConstructorOrders]);
+  }, [showConstructorOrders, showCompleted]);
 
   const loadOrders = async () => {
     setLoading(true);
     try {
       const data = showConstructorOrders
-        ? await fetchAllConstructorOrders()
-        : await fetchAllOrders();
+        ? await fetchAllConstructorOrders(showCompleted)
+        : await fetchAllOrders(showCompleted);
       setOrders(data);
     } catch (err) {
       console.error("Ошибка загрузки заказов:", err);
@@ -25,23 +26,32 @@ const AdminOrders = () => {
     }
   };
 
-  const handleMarkDone = async (id) => {
-    await markOrderAsDone(id, showConstructorOrders);
+  const handleMarkDone = async (id, currentDone) => {
+    await markOrderAsDone(id, showConstructorOrders, !currentDone);
     loadOrders();
   };
 
   return (
     <Container className="mt-4">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2>Заказы пользователей</h2>
-        <Form.Check
-          type="switch"
-          id="constructor-toggle"
-          label="Показать заказы из конструктора"
-          checked={showConstructorOrders}
-          onChange={() => setShowConstructorOrders(prev => !prev)}
-        />
-      </div>
+<div className="d-flex justify-content-between align-items-center mb-3">
+  <h2>Заказы пользователей</h2>
+  <div className="d-flex gap-4 align-items-center">
+    <Form.Check
+      type="switch"
+      id="done-toggle"
+      label="Показать выполненные"
+      checked={showCompleted}
+      onChange={() => setShowCompleted(prev => !prev)}
+    />
+    <Form.Check
+      type="switch"
+      id="constructor-toggle"
+      label="Показать заказы из конструктора"
+      checked={showConstructorOrders}
+      onChange={() => setShowConstructorOrders(prev => !prev)}
+    />
+  </div>
+</div>
 
       {loading ? (
         <h5>Загрузка...</h5>
@@ -88,18 +98,15 @@ const AdminOrders = () => {
                   </>
                 )
               )}
-
-              {!order.done && (
-                <div>
-                  <Button
-                    className="mt-3"
-                    variant="success"
-                    onClick={() => handleMarkDone(order.id)}
-                  >
-                    Отметить как выполненный
-                  </Button>
-                </div>
-              )}
+            <div>
+            <Button
+              className="mt-3"
+              variant={order.done ? "warning" : "success"}
+              onClick={() => handleMarkDone(order.id, order.done)}
+            >
+              {order.done ? "Восстановить заказ" : "Отметить как выполненный"}
+            </Button>
+            </div>
             </Card.Body>
           </Card>
         ))

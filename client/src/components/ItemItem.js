@@ -36,11 +36,15 @@ const ItemItem = ({ item }) => {
             <Card style={{ width: 150, cursor: 'pointer' }} border={"light"}>
                 <Image width={150} height={150} src={firstImage} />
                 <div className="text-black-50 mt-1 d-flex justify-content-between align-items-center">
-                    <div>{item.price || '???'} руб.</div>
-                    <div className="d-flex align-items-center">
-                        <div>{avgRating}</div>
-                        <Image width={18} height={18} src={star} />
-                    </div>
+                <div>
+                    {item.availability
+                        ? `${item.price} руб.`
+                        : <span className="text-danger">Недоступно</span>}
+                </div>
+                <div className="d-flex align-items-center">
+                    <div>{avgRating}</div>
+                    <Image width={18} height={18} src={star} />
+                </div>
                 </div>
                 <div>{item.name}</div>
             </Card>

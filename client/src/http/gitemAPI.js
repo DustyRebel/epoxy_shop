@@ -43,3 +43,15 @@ export const deleteItems = async (id) => {
     const { data } = await $authHost.delete(`api/gitem${id}`);
     return data
 }
+
+export const toggleGItemAvailability = async (id, currentAvailability) => {
+    const { data } = await $authHost.patch(`api/gitem/${id}/availability`, {
+        availability: !currentAvailability
+    });
+    return data;
+};
+
+export const fetchGItemByName = async (name) => {
+    const { data } = await $authHost.get(`api/gitem/name/${encodeURIComponent(name)}`);
+    return data;
+  };

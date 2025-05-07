@@ -42,7 +42,8 @@ class CartItemController {
                 where: { cartId: cart.id },
                 include: [{
                     model: Item,
-                    include: [{ model: ShopImg }] // <<< добавляем сюда!
+                    include: [{ model: ShopImg }],
+                order: [['createdAt', 'ASC']]
                 }]
             });
 

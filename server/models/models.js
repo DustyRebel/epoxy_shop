@@ -22,6 +22,7 @@ const Item = sequelize.define('item', {
     name: {type: DataTypes.STRING, unique: true, allowNull: false},
     price: {type: DataTypes.INTEGER, allowNull: false},
     rating: {type: DataTypes.INTEGER, defaultValue: 0},
+    availability: {type: DataTypes.BOOLEAN, defaultValue: true},
     //img: {type: DataTypes.STRING, allowNull: false},
 })
 
@@ -33,6 +34,7 @@ const Type = sequelize.define('type', {
 const Color = sequelize.define('color', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     name: {type: DataTypes.STRING, unique: true, allowNull: false},
+    hexColor: { type: DataTypes.STRING, allowNull: false },
 })
 
 const Rating = sequelize.define('rating', {
@@ -74,7 +76,8 @@ const Checkout = sequelize.define('checkout', {
 const GalleryItem = sequelize.define('gallery_item', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     name: {type: DataTypes.STRING, unique: true, allowNull: false},
-    description: {type: DataTypes.STRING, allowNull: false},
+    description: {type: DataTypes.TEXT, allowNull: false},
+    availability: {type: DataTypes.BOOLEAN, defaultValue: true},
 })
 
 const GalleryImg = sequelize.define('gallery_img', {
