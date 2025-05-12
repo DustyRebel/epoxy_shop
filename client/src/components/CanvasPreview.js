@@ -59,7 +59,7 @@ if (baseColor || base) {
     const h = height * scale;
     const x = (width - w) / 2;
     const y = (height - h) / 2;
-    imgCtx.drawImage(base, x, y, w, h);
+    drawScaled(imgCtx, base);
 
     // Маска формы
     const maskCanvas = document.createElement("canvas");
@@ -69,7 +69,7 @@ if (baseColor || base) {
 
     if (view === "side") {
       // Маска правая половина формы сбоку
-      maskCtx.drawImage(form, 0, 0, width, height);
+      drawScaled(maskCtx, form);
       maskCtx.globalCompositeOperation = "destination-in";
       maskCtx.fillStyle = "black";
       maskCtx.fillRect(width / 1.95, 0, width / 2, height);
@@ -113,70 +113,70 @@ if (baseColor || base) {
 
 
 
-      // 2. Форма
-      drawScaled(contentCtx, form);
-      contentCtx.globalCompositeOperation = "source-in";
+// 2. Форма
+drawScaled(contentCtx, form);
+contentCtx.globalCompositeOperation = "source-in";
 
-      drawColor(contentCtx, hexColor || "#D9D9D9", width, height);
-      contentCtx.globalCompositeOperation = "source-over";
+drawColor(contentCtx, hexColor || "#D9D9D9", width, height);
+contentCtx.globalCompositeOperation = "source-over";
 
-      // 3. Декор
-      if (decor) {
-        console.log("DECOR:", decorImg);
-        const decorCanvas = document.createElement("canvas");
-        const decorCtx = decorCanvas.getContext("2d");
-        decorCanvas.width = width;
-        decorCanvas.height = height;
+// 3. Декор
+if (decor) {
+  console.log("DECOR:", decorImg);
+  const decorCanvas = document.createElement("canvas");
+  const decorCtx = decorCanvas.getContext("2d");
+  decorCanvas.width = width;
+  decorCanvas.height = height;
 
-        decorCtx.drawImage(decor, 0, 0, width, height);
-        decorCtx.globalCompositeOperation = "destination-in";
-        drawScaled(decorCtx, form);
+  decorCtx.drawImage(decor, 0, 0, width, height);
+  decorCtx.globalCompositeOperation = "destination-in";
+  drawScaled(decorCtx, form);
 
-        contentCtx.drawImage(decorCanvas, 0, 0);
-      }
+  contentCtx.drawImage(decorCanvas, 0, 0);
+}
 
-      // 4. Глиттер
-      if (glitter) {
-        const glitterCanvas = document.createElement("canvas");
-        const glitterCtx = glitterCanvas.getContext("2d");
-        glitterCanvas.width = width;
-        glitterCanvas.height = height;
+// 4. Глиттер
+if (glitter) {
+  const glitterCanvas = document.createElement("canvas");
+  const glitterCtx = glitterCanvas.getContext("2d");
+  glitterCanvas.width = width;
+  glitterCanvas.height = height;
 
-        glitterCtx.globalAlpha = 0.5;
-        glitterCtx.drawImage(glitter, 0, 0, width, height);
-        glitterCtx.globalAlpha = 1;
-        glitterCtx.globalCompositeOperation = "destination-in";
-        drawScaled(glitterCtx, form);
+  glitterCtx.globalAlpha = 0.5;
+  glitterCtx.drawImage(glitter, 0, 0, width, height);
+  glitterCtx.globalAlpha = 1;
+  glitterCtx.globalCompositeOperation = "destination-in";
+  drawScaled(glitterCtx, form);
 
-        contentCtx.drawImage(glitterCanvas, 0, 0);
-      }
+  contentCtx.drawImage(glitterCanvas, 0, 0);
+}
 
-      // 5. Цветовая полупрозрачная заливка
-      const overlay = document.createElement("canvas");
-      const overlayCtx = overlay.getContext("2d");
-      overlay.width = width;
-      overlay.height = height;
+// 5. Цветовая полупрозрачная заливка
+const overlay = document.createElement("canvas");
+const overlayCtx = overlay.getContext("2d");
+overlay.width = width;
+overlay.height = height;
 
-      drawColor(overlayCtx, hexColor || "#D9D9D9", width, height, 0.35);
-      overlayCtx.globalCompositeOperation = "destination-in";
-      drawScaled(overlayCtx, form);
+drawColor(overlayCtx, hexColor || "#D9D9D9", width, height, 0.35);
+overlayCtx.globalCompositeOperation = "destination-in";
+drawScaled(overlayCtx, form);
 
-      contentCtx.drawImage(overlay, 0, 0);
+contentCtx.drawImage(overlay, 0, 0);
 
-      // 6. Финальный рендер
-      ctx.clearRect(0, 0, width, height);
-      if (view === "front") {
-        if (baseColor|| baseImg) ctx.drawImage(baseLayer, 0, 0);
-        ctx.drawImage(contentLayer, 0, 0);
-      } else if (view === "side") {
-        ctx.drawImage(contentLayer, 0, 0);
-        if (baseColor|| baseImg) ctx.drawImage(baseLayer, 0, 0);
-      } else if (view === "back") {
-        ctx.drawImage(contentLayer, 0, 0);
-        if (baseColor|| baseImg) ctx.drawImage(baseLayer, 0, 0);
-      }
-    });
-  }, [formImg, glitterImg, decorImg, hexColor, baseImg, baseColor, view, scale]);
+// 6. Финальный рендер
+ctx.clearRect(0, 0, width, height);
+if (view === "front") {
+  if (baseColor|| baseImg) ctx.drawImage(baseLayer, 0, 0);
+  ctx.drawImage(contentLayer, 0, 0);
+} else if (view === "side") {
+  ctx.drawImage(contentLayer, 0, 0);
+  if (baseColor|| baseImg) ctx.drawImage(baseLayer, 0, 0);
+} else if (view === "back") {
+  ctx.drawImage(contentLayer, 0, 0);
+  if (baseColor|| baseImg) ctx.drawImage(baseLayer, 0, 0);
+}
+});
+}, [formImg, glitterImg, decorImg, hexColor, baseImg, baseColor, view, scale]);
 
   const drawColor = (ctx, hexColor, width, height, alpha = 0.5) => {
     if (!hexColor) return;
